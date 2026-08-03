@@ -37,7 +37,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
         .order("assessed_on", { ascending: true }),
       supabase
         .from("payments")
-        .select("*, profiles(full_name)")
+        .select("*, profiles!payments_received_by_fkey(full_name)")
         .eq("loan_id", id)
         .order("paid_at", { ascending: false }),
       supabase.from("loan_balances").select("*").eq("loan_id", id).single(),

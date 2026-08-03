@@ -22,6 +22,14 @@ export async function recordPayment(input: {
     return { ok: false, error: "Enter a valid payment amount" };
   }
 
+  const paymentDate = input.paymentDate ?? todayInManila();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) {
+    return { ok: false, error: "Enter a valid payment date" };
+  }
+  if (paymentDate > todayInManila()) {
+    return { ok: false, error: "Payment date cannot be in the future" };
+  }
+
   const { data: loan } = await supabase
     .from("loans")
     .select("id, status")
@@ -64,7 +72,7 @@ export async function recordPayment(input: {
   const { data: paymentId, error } = await supabase.rpc("apply_payment", {
     p_loan_id: input.loanId,
     p_amount_centavos: input.amountCentavos,
-    p_payment_date: input.paymentDate ?? todayInManila(),
+    p_payment_date: paymentDate,
     p_method: input.method,
     p_reference_no: input.referenceNo ?? null,
     p_received_by: profile.id,

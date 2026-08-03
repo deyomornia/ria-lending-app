@@ -18,7 +18,7 @@ export default async function CollectionsPage({
   const { data: payments } = await supabase
     .from("payments")
     .select(
-      "*, profiles(full_name), loans!inner(id, loan_number, borrowers!inner(id, full_name))"
+      "*, profiles!payments_received_by_fkey(full_name), loans!inner(id, loan_number, borrowers!inner(id, full_name))"
     )
     .gte("payment_date", from)
     .lte("payment_date", to)

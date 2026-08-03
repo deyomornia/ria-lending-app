@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { recordPayment } from "@/lib/actions/payments";
 import { formatPeso } from "@/lib/interest/money";
+import { todayInManila } from "@/lib/tz";
 
 const inputCls =
   "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
@@ -22,6 +23,7 @@ export function RecordPaymentForm({
   const [amount, setAmount] = useState(
     suggestedAmount > 0 ? (suggestedAmount / 100).toFixed(2) : ""
   );
+  const [paymentDate, setPaymentDate] = useState(todayInManila());
   const [method, setMethod] = useState<"cash" | "gcash" | "bank">("cash");
   const [referenceNo, setReferenceNo] = useState("");
   const [note, setNote] = useState("");
@@ -32,11 +34,13 @@ export function RecordPaymentForm({
   function submit() {
     const centavos = Math.round(parseFloat(amount) * 100);
     if (!Number.isFinite(centavos) || centavos <= 0) return setError("Enter a valid amount.");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return setError("Enter a valid payment date.");
     setError(null);
     startTransition(async () => {
       const res = await recordPayment({
         loanId,
         amountCentavos: centavos,
+        paymentDate,
         method,
         referenceNo: referenceNo || undefined,
         note: note || undefined,
@@ -71,6 +75,19 @@ export function RecordPaymentForm({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
+        </div>
+        <div>
+          <label className={labelCls}>Date of payment</label>
+          <input
+            type="date"
+            className={inputCls}
+            value={paymentDate}
+            max={todayInManila()}
+            onChange={(e) => setPaymentDate(e.target.value)}
+          />
+          <p className="mt-1 text-sm text-slate-600">
+            Defaults to today — change it when recording a payment received earlier.
+          </p>
         </div>
         <div>
           <label className={labelCls}>Method</label>
