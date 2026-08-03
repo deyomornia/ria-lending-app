@@ -4,9 +4,9 @@ import { formatLongDate } from "@/lib/tz";
 
 export function ScheduleTable({ rows }: { rows: ScheduleRow[] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+    <div className="overflow-x-auto rounded-lg border border-slate-300">
+      <table className="w-full text-base">
+        <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
           <tr>
             <th className="px-3 py-2">#</th>
             <th className="px-3 py-2">Due date</th>
@@ -15,10 +15,10 @@ export function ScheduleTable({ rows }: { rows: ScheduleRow[] }) {
             <th className="px-3 py-2 text-right">Amount due</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-200">
           {rows.map((row) => (
             <tr key={row.seq} className="bg-white">
-              <td className="px-3 py-2 text-slate-500">{row.seq}</td>
+              <td className="px-3 py-2 text-slate-700">{row.seq}</td>
               <td className="px-3 py-2 whitespace-nowrap">{formatLongDate(row.dueDate)}</td>
               <td className="px-3 py-2 text-right tabular-nums">{formatPeso(row.principalDue)}</td>
               <td className="px-3 py-2 text-right tabular-nums">{formatPeso(row.interestDue)}</td>

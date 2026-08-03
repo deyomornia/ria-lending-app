@@ -6,8 +6,8 @@ import { recordPayment } from "@/lib/actions/payments";
 import { formatPeso } from "@/lib/interest/money";
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
-const labelCls = "mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500";
+  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
 
 export function RecordPaymentForm({
   loanId,
@@ -54,9 +54,9 @@ export function RecordPaymentForm({
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div className="rounded-xl border border-slate-300 bg-white p-4">
       <h3 className="text-sm font-semibold text-slate-900">Record payment</h3>
-      <p className="mt-1 text-xs text-slate-500">
+      <p className="mt-1 text-sm text-slate-700">
         Outstanding: <span className="font-medium">{formatPeso(outstanding)}</span>. Penalties are
         settled first, then the oldest dues.
       </p>
@@ -103,7 +103,7 @@ export function RecordPaymentForm({
         <button
           onClick={submit}
           disabled={pending || outstanding <= 0}
-          className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="w-full rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
         >
           {pending ? "Recording…" : "Record payment"}
         </button>

@@ -18,7 +18,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
       <aside className="hidden w-56 shrink-0 flex-col bg-slate-900 text-white sm:flex">
         <div className="px-5 py-6">
           <p className="text-lg font-bold">RIA Lending</p>
-          <p className="text-xs text-slate-400">
+          <p className="text-sm text-slate-300">
             {profile.full_name} · {profile.role}
           </p>
         </div>
@@ -27,7 +27,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
             <Link
               key={item.href}
               href={item.href}
-              className="block rounded-md px-3 py-2 text-sm text-slate-200 hover:bg-slate-800 hover:text-white"
+              className="block rounded-md px-3 py-2.5 text-base text-slate-100 hover:bg-slate-800 hover:text-white"
             >
               {item.label}
             </Link>
@@ -42,9 +42,9 @@ export default async function StaffLayout({ children }: { children: React.ReactN
         {/* Mobile top bar */}
         <div className="flex items-center justify-between bg-slate-900 px-4 py-3 text-white sm:hidden">
           <p className="font-bold">RIA Lending</p>
-          <nav className="flex gap-3 text-xs">
+          <nav className="flex gap-3 text-sm">
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="text-slate-200">
+              <Link key={item.href} href={item.href} className="text-slate-100">
                 {item.label}
               </Link>
             ))}

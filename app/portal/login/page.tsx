@@ -35,16 +35,16 @@ export default function PortalLoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-slate-900">Borrower Portal</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-700">
             View your loan balance and upcoming payments
           </p>
         </div>
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+          className="space-y-4 rounded-xl border border-slate-300 bg-white p-6 shadow-sm"
         >
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700">
               Mobile number
             </label>
             <input
@@ -52,13 +52,13 @@ export default function PortalLoginPage() {
               required
               placeholder="0917 123 4567"
               autoComplete="tel"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700">
               Access code
             </label>
             <input
@@ -68,11 +68,11 @@ export default function PortalLoginPage() {
               pattern="\d{6}"
               maxLength={6}
               placeholder="6-digit code"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-center font-mono text-lg tracking-[0.4em] shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-center font-mono text-lg tracking-[0.4em] shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             />
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-sm text-slate-600">
               Ask your lender for your access code if you don&apos;t have one.
             </p>
           </div>
@@ -80,12 +80,12 @@ export default function PortalLoginPage() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            className="w-full rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
           >
             {busy ? "Checking…" : "View my loans"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm text-slate-700">
           <Link href="/" className="font-medium text-emerald-700">
             ← Back to home
           </Link>

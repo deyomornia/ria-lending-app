@@ -26,7 +26,7 @@ export default async function BorrowersPage({
         <h1 className="text-xl font-bold text-slate-900">Borrowers</h1>
         <Link
           href="/borrowers/new"
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800"
         >
           + Add borrower
         </Link>
@@ -38,20 +38,20 @@ export default async function BorrowersPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="Search by name or phone…"
-          className="w-full max-w-sm rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm"
+          className="w-full max-w-sm rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm"
         />
       </form>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+        <table className="w-full text-base">
+          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Phone</th>
               <th className="px-4 py-2">Active loans</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-200">
             {(borrowers ?? []).map((b) => {
               const active = (b.loans ?? []).filter((l) => l.status === "active");
               return (
@@ -61,8 +61,8 @@ export default async function BorrowersPage({
                       {b.full_name}
                     </Link>
                   </td>
-                  <td className="px-4 py-2 text-slate-500">{b.phone}</td>
-                  <td className="px-4 py-2 text-slate-500">
+                  <td className="px-4 py-2 text-slate-700">{b.phone}</td>
+                  <td className="px-4 py-2 text-slate-700">
                     {active.length > 0
                       ? `${active.length} · ${formatPeso(active.reduce((a, l) => a + l.total_payable_centavos, 0))} payable`
                       : "—"}
@@ -72,7 +72,7 @@ export default async function BorrowersPage({
             })}
             {(borrowers ?? []).length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-8 text-center text-slate-600">
                   No borrowers yet. Add your first borrower to get started.
                 </td>
               </tr>

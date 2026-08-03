@@ -33,39 +33,39 @@ export default async function CollectionsPage({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Collections</h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-700">
             {valid.length} payments · <span className="font-semibold">{formatPeso(total)}</span>{" "}
             collected
           </p>
         </div>
         <form className="flex items-end gap-2">
           <div>
-            <label className="mb-1 block text-xs uppercase tracking-wide text-slate-500">From</label>
+            <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">From</label>
             <input
               type="date"
               name="from"
               defaultValue={from}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+              className="rounded-md border border-slate-300 px-3 py-2 text-base"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs uppercase tracking-wide text-slate-500">To</label>
+            <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">To</label>
             <input
               type="date"
               name="to"
               defaultValue={to}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+              className="rounded-md border border-slate-300 px-3 py-2 text-base"
             />
           </div>
-          <button className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white">
+          <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
             Filter
           </button>
         </form>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+      <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white">
+        <table className="w-full text-base">
+          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>
               <th className="px-4 py-2">Date</th>
               <th className="px-4 py-2">Borrower</th>
@@ -76,7 +76,7 @@ export default async function CollectionsPage({
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-200">
             {(payments ?? []).map((p) => (
               <tr key={p.id} className={p.voided_at ? "opacity-50" : ""}>
                 <td className="px-4 py-2 whitespace-nowrap">{formatLongDate(p.payment_date)}</td>
@@ -95,13 +95,13 @@ export default async function CollectionsPage({
                 </td>
                 <td className="px-4 py-2 text-right tabular-nums">
                   {formatPeso(p.amount_centavos)}
-                  {p.voided_at && <span className="ml-1 text-xs text-red-500">VOID</span>}
+                  {p.voided_at && <span className="ml-1 text-sm text-red-500">VOID</span>}
                 </td>
-                <td className="px-4 py-2 text-xs text-slate-500">
+                <td className="px-4 py-2 text-sm text-slate-700">
                   {p.method}
                   {p.reference_no ? ` · ${p.reference_no}` : ""}
                 </td>
-                <td className="px-4 py-2 text-xs text-slate-500">{p.profiles?.full_name}</td>
+                <td className="px-4 py-2 text-sm text-slate-700">{p.profiles?.full_name}</td>
                 <td className="px-4 py-2 text-right">
                   {profile.role === "owner" && !p.voided_at && (
                     <VoidPaymentButton paymentId={p.id} />
@@ -111,7 +111,7 @@ export default async function CollectionsPage({
             ))}
             {(payments ?? []).length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-600">
                   No payments in this period.
                 </td>
               </tr>

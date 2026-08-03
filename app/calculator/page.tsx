@@ -10,7 +10,7 @@ export default function CalculatorPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Loan Calculator</h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-700">
               Compute interest, payments, and the full amortization schedule.
             </p>
           </div>
@@ -21,7 +21,7 @@ export default function CalculatorPage() {
             ← Home
           </Link>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-300 bg-white p-6 shadow-sm">
           <CalculatorForm />
         </div>
       </div>

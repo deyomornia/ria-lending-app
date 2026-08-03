@@ -7,8 +7,8 @@ import { createLoan } from "@/lib/actions/loans";
 import type { LoanTerms, ScheduleResult } from "@/lib/interest/types";
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
-const labelCls = "mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500";
+  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
 
 export function NewLoanForm({
   borrowers,
@@ -47,7 +47,7 @@ export function NewLoanForm({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
+      <div className="rounded-xl border border-slate-300 bg-white p-6">
         <label className={labelCls}>Borrower *</label>
         <select
           className={inputCls}
@@ -63,8 +63,8 @@ export function NewLoanForm({
         </select>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <div className="rounded-xl border border-slate-300 bg-white p-6">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
           Loan terms
         </h2>
         <CalculatorForm
@@ -75,8 +75,8 @@ export function NewLoanForm({
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <div className="rounded-xl border border-slate-300 bg-white p-6">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
           Late-payment penalty
         </h2>
         <div className="grid max-w-md grid-cols-2 gap-4">
@@ -110,7 +110,7 @@ export function NewLoanForm({
       <button
         onClick={handleSubmit}
         disabled={pending}
-        className="rounded-md bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+        className="rounded-md bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
       >
         {pending ? "Creating loan…" : "Create loan & activate"}
       </button>

@@ -3,8 +3,8 @@ import { updateCompanySettings } from "@/lib/actions/settings";
 
 export const metadata = { title: "Settings — RIA Lending" };
 
-const inputCls = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm";
-const labelCls = "mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500";
+const inputCls = "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
 
 export default async function SettingsPage() {
   const { supabase, profile } = await requireStaff();
@@ -20,9 +20,9 @@ export default async function SettingsPage() {
       <h1 className="text-xl font-bold text-slate-900">Settings</h1>
       <form
         action={updateCompanySettings}
-        className="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+        className="space-y-4 rounded-xl border border-slate-300 bg-white p-6"
       >
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-700">
           Company details shown on the loan agreement PDF.
           {!isOwner && " Only the owner can edit these."}
         </p>
@@ -69,13 +69,13 @@ export default async function SettingsPage() {
           />
         </div>
         {isOwner && (
-          <button className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+          <button className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800">
             Save settings
           </button>
         )}
       </form>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
+      <div className="rounded-xl border border-slate-300 bg-white p-6 text-sm text-slate-600">
         <h2 className="mb-2 font-semibold text-slate-900">Staff accounts</h2>
         <p>
           Create staff accounts in the Supabase dashboard (Authentication → Users), then add a

@@ -92,8 +92,8 @@ export function stateToTerms(s: CalculatorState): LoanTerms | null {
 }
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
-const labelCls = "block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1";
+  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
+const labelCls = "block text-sm font-medium uppercase tracking-wide text-slate-700 mb-1";
 
 export function CalculatorForm({
   initial,
@@ -147,7 +147,7 @@ export function CalculatorForm({
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-slate-500">{METHOD_HELP[s.method]}</p>
+          <p className="mt-1 text-sm text-slate-700">{METHOD_HELP[s.method]}</p>
         </div>
 
         <div>
@@ -227,7 +227,7 @@ export function CalculatorForm({
 
         <div>
           <label className={labelCls}>
-            First due date <span className="normal-case text-slate-400">(optional)</span>
+            First due date <span className="normal-case text-slate-600">(optional)</span>
           </label>
           <input
             type="date"
@@ -239,7 +239,7 @@ export function CalculatorForm({
 
         <div>
           <label className={labelCls}>
-            Processing fee (₱) <span className="normal-case text-slate-400">(deducted from release)</span>
+            Processing fee (₱) <span className="normal-case text-slate-600">(deducted from release)</span>
           </label>
           <input
             type="number"
@@ -277,10 +277,10 @@ export function CalculatorForm({
 
 function SummaryCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+    <div className="rounded-lg border border-slate-300 bg-white p-3">
+      <p className="text-sm uppercase tracking-wide text-slate-700">{label}</p>
       <p className="mt-1 text-lg font-semibold tabular-nums text-slate-900">{value}</p>
-      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+      {hint && <p className="text-sm text-slate-600">{hint}</p>}
     </div>
   );
 }

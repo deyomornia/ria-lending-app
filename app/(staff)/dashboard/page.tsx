@@ -66,7 +66,7 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-900">Good day, {profile.full_name}!</h1>
-        <p className="text-sm text-slate-500">{formatLongDate(today)}</p>
+        <p className="text-sm text-slate-700">{formatLongDate(today)}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -89,8 +89,8 @@ export default async function DashboardPage() {
 
 function Stat({ label, value, good }: { label: string; value: string; good?: boolean }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+    <div className="rounded-xl border border-slate-300 bg-white p-3">
+      <p className="text-sm uppercase tracking-wide text-slate-700">{label}</p>
       <p
         className={`mt-1 text-lg font-semibold tabular-nums ${good ? "text-emerald-700" : "text-slate-900"}`}
       >
@@ -113,10 +113,10 @@ function DueTable({
 }) {
   return (
     <section>
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{title}</h2>
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">{title}</h2>
+      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+        <table className="w-full text-base">
+          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>
               <th className="px-4 py-2">Borrower</th>
               <th className="px-4 py-2">Loan #</th>
@@ -124,7 +124,7 @@ function DueTable({
               <th className="px-4 py-2 text-right">Amount due</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-200">
             {rows.map((r) => (
               <tr key={r.id} className={overdue ? "bg-red-50/50" : ""}>
                 <td className="px-4 py-2">
@@ -134,7 +134,7 @@ function DueTable({
                   >
                     {r.loans.borrowers.full_name}
                   </Link>
-                  <span className="ml-2 text-xs text-slate-400">{r.loans.borrowers.phone}</span>
+                  <span className="ml-2 text-sm text-slate-600">{r.loans.borrowers.phone}</span>
                 </td>
                 <td className="px-4 py-2">
                   <Link href={`/loans/${r.loans.id}`} className="text-emerald-700">
@@ -149,7 +149,7 @@ function DueTable({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-6 text-center text-slate-600">
                   {emptyText}
                 </td>
               </tr>
