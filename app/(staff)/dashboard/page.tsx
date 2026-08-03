@@ -33,7 +33,7 @@ export default async function DashboardPage() {
   const today = todayInManila();
   const weekStart = addDays(today, -6);
 
-  const [dueTodayRes, overdueRes, activeLoansRes, balancesRes, weekPaymentsRes] =
+  const [dueTodayRes, overdueRes, activeLoansRes, weekPaymentsRes] =
     await Promise.all([
       supabase
         .from("schedule_items")
@@ -54,11 +54,7 @@ export default async function DashboardPage() {
         .eq("loans.status", "active")
         .order("due_date")
         .limit(100),
-      supabase.from("loans").select("id", { count: "exact", head: true }).eq("status", "active"),
-      supabase
-        .from("loan_balances")
-        .select("outstanding_centavos, loans!inner(status)")
-        .eq("loans.status", "active"),
+      supabase.from("loans").select("id").eq("status", "active"),
       supabase
         .from("payments")
         .select("amount_centavos, payment_date")
@@ -69,6 +65,12 @@ export default async function DashboardPage() {
 
   const dueToday = (dueTodayRes.data ?? []) as unknown as DueRow[];
   const overdue = (overdueRes.data ?? []) as unknown as DueRow[];
+
+  // loan_balances is a view — PostgREST can't join it to loans, so filter by id
+  const activeIds = (activeLoansRes.data ?? []).map((l) => l.id);
+  const balancesRes = activeIds.length
+    ? await supabase.from("loan_balances").select("outstanding_centavos").in("loan_id", activeIds)
+    : { data: [] as { outstanding_centavos: number }[] };
   const totalOutstanding = (balancesRes.data ?? []).reduce(
     (a, b) => a + (b.outstanding_centavos ?? 0),
     0
@@ -107,7 +109,7 @@ export default async function DashboardPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Active loans" value={String(activeLoansRes.count ?? 0)} />
+        <Stat label="Active loans" value={String(activeIds.length)} />
         <Stat label="Total outstanding" value={formatPeso(totalOutstanding)} accent />
         <Stat
           label="Due today"
