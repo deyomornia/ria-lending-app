@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/staff/PageHeader";
 import { requireStaff } from "@/lib/auth/staff";
 import { NewLoanForm } from "@/components/staff/NewLoanForm";
 
@@ -18,7 +19,7 @@ export default async function NewLoanPage({
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="mb-6 text-xl font-bold text-slate-900">New loan</h1>
+      <PageHeader title="New loan" description="Pick the borrower, set the terms, preview the schedule, then activate." />
       <NewLoanForm borrowers={borrowers ?? []} preselectedBorrowerId={borrower} />
     </div>
   );

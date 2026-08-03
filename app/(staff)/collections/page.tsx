@@ -3,6 +3,7 @@ import { requireStaff } from "@/lib/auth/staff";
 import { formatPeso } from "@/lib/interest/money";
 import { formatLongDate, todayInManila } from "@/lib/tz";
 import { VoidPaymentButton } from "@/components/staff/OwnerActions";
+import { PageHeader } from "@/components/staff/PageHeader";
 
 export const metadata = { title: "Collections — RIA Lending" };
 
@@ -30,15 +31,11 @@ export default async function CollectionsPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Collections</h1>
-          <p className="text-sm text-slate-700">
-            {valid.length} payments · <span className="font-semibold">{formatPeso(total)}</span>{" "}
-            collected
-          </p>
-        </div>
-        <form className="flex items-end gap-2">
+      <PageHeader
+        title="Collections"
+        description={`${valid.length} payment${valid.length === 1 ? "" : "s"} · ${formatPeso(total)} collected in this period`}
+        action={
+          <form className="flex items-end gap-2">
           <div>
             <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">From</label>
             <input
@@ -57,13 +54,14 @@ export default async function CollectionsPage({
               className="rounded-md border border-slate-300 px-3 py-2 text-base"
             />
           </div>
-          <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
-            Filter
-          </button>
-        </form>
-      </div>
+            <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
+              Filter
+            </button>
+          </form>
+        }
+      />
 
-      <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm">
         <table className="w-full text-base">
           <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>

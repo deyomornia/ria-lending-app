@@ -4,6 +4,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <div className="w-full max-w-md text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-700 text-3xl font-bold text-white shadow-lg">₱</div>
         <h1 className="text-4xl font-bold text-white">RIA Lending</h1>
         <p className="mt-2 text-base text-slate-300">
           Loan management for lenders, collectors, and borrowers.

@@ -1,54 +1,40 @@
-import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { SignOutButton } from "@/components/staff/SignOutButton";
-
-const NAV = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/borrowers", label: "Borrowers" },
-  { href: "/loans/new", label: "New Loan" },
-  { href: "/collections", label: "Collections" },
-  { href: "/settings", label: "Settings" },
-];
+import { SidebarNav } from "@/components/staff/SidebarNav";
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await requireStaff();
 
   return (
     <div className="flex min-h-screen bg-slate-100">
-      <aside className="hidden w-56 shrink-0 flex-col bg-slate-900 text-white sm:flex">
-        <div className="px-5 py-6">
-          <p className="text-lg font-bold">RIA Lending</p>
-          <p className="text-sm text-slate-300">
-            {profile.full_name} · {profile.role}
-          </p>
+      <aside className="hidden w-60 shrink-0 flex-col bg-emerald-950 text-white sm:flex">
+        <div className="flex items-center gap-3 px-5 py-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-700 text-xl font-bold">
+            ₱
+          </div>
+          <div>
+            <p className="text-lg font-bold leading-tight">RIA Lending</p>
+            <p className="text-sm text-emerald-200/80 capitalize">
+              {profile.full_name.split(" ")[0]} · {profile.role}
+            </p>
+          </div>
         </div>
-        <nav className="flex-1 space-y-1 px-3">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block rounded-md px-3 py-2.5 text-base text-slate-100 hover:bg-slate-800 hover:text-white"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="px-5 py-4">
+        <SidebarNav />
+        <div className="border-t border-emerald-900 px-5 py-4">
           <SignOutButton />
         </div>
       </aside>
 
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         {/* Mobile top bar */}
-        <div className="flex items-center justify-between bg-slate-900 px-4 py-3 text-white sm:hidden">
-          <p className="font-bold">RIA Lending</p>
-          <nav className="flex gap-3 text-sm">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="text-slate-100">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+        <div className="bg-emerald-950 px-4 py-3 text-white sm:hidden">
+          <div className="flex items-center justify-between">
+            <p className="font-bold">₱ RIA Lending</p>
+            <SignOutButton />
+          </div>
+          <div className="mt-2 overflow-x-auto">
+            <SidebarNav compact />
+          </div>
         </div>
         <main className="p-4 sm:p-8">{children}</main>
       </div>

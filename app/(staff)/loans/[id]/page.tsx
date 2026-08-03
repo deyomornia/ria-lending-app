@@ -95,7 +95,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
               Payment schedule
             </h2>
-            <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white">
+            <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm">
               <table className="w-full text-base">
                 <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
                   <tr>
@@ -153,7 +153,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
                 Penalties
               </h2>
-              <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+              <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
                 <table className="w-full text-base">
                   <tbody className="divide-y divide-slate-200">
                     {(penalties ?? []).map((p) => (
@@ -192,7 +192,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
               Payment history
             </h2>
-            <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+            <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
               <table className="w-full text-base">
                 <tbody className="divide-y divide-slate-200">
                   {(payments ?? []).map((p) => (

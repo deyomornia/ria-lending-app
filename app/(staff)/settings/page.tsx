@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/staff/PageHeader";
 import { requireStaff } from "@/lib/auth/staff";
 import { updateCompanySettings } from "@/lib/actions/settings";
 
@@ -17,10 +18,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <h1 className="text-xl font-bold text-slate-900">Settings</h1>
+      <PageHeader title="Settings" description="Company details shown on printed loan agreements." />
       <form
         action={updateCompanySettings}
-        className="space-y-4 rounded-xl border border-slate-300 bg-white p-6"
+        className="space-y-4 rounded-xl border border-slate-300 bg-white shadow-sm p-6"
       >
         <p className="text-sm text-slate-700">
           Company details shown on the loan agreement PDF.
@@ -75,7 +76,7 @@ export default async function SettingsPage() {
         )}
       </form>
 
-      <div className="rounded-xl border border-slate-300 bg-white p-6 text-sm text-slate-600">
+      <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-6 text-sm text-slate-600">
         <h2 className="mb-2 font-semibold text-slate-900">Staff accounts</h2>
         <p>
           Create staff accounts in the Supabase dashboard (Authentication → Users), then add a

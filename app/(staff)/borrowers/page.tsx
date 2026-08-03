@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatPeso } from "@/lib/interest/money";
+import { PageHeader } from "@/components/staff/PageHeader";
 
 export const metadata = { title: "Borrowers — RIA Lending" };
 
@@ -22,15 +23,18 @@ export default async function BorrowersPage({
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Borrowers</h1>
-        <Link
-          href="/borrowers/new"
-          className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800"
-        >
-          + Add borrower
-        </Link>
-      </div>
+      <PageHeader
+        title="Borrowers"
+        description="Everyone you lend to, with their active loans and portal access."
+        action={
+          <Link
+            href="/borrowers/new"
+            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
+          >
+            + Add borrower
+          </Link>
+        }
+      />
 
       <form className="mb-4">
         <input
@@ -42,7 +46,7 @@ export default async function BorrowersPage({
         />
       </form>
 
-      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
         <table className="w-full text-base">
           <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>

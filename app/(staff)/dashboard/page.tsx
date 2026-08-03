@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatPeso } from "@/lib/interest/money";
+import { addDays } from "@/lib/interest/dates";
 import { formatLongDate, todayInManila } from "@/lib/tz";
+import { PageHeader } from "@/components/staff/PageHeader";
+import { AgingBar, CollectionsBarChart } from "@/components/staff/DashboardCharts";
 
 export const metadata = { title: "Dashboard — RIA Lending" };
 
@@ -17,11 +20,20 @@ type DueRow = {
   };
 };
 
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function dayLabel(ymd: string, today: string): string {
+  if (ymd === today) return "Today";
+  const [y, m, d] = ymd.split("-").map(Number);
+  return DAY_LABELS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+}
+
 export default async function DashboardPage() {
   const { supabase, profile } = await requireStaff();
   const today = todayInManila();
+  const weekStart = addDays(today, -6);
 
-  const [dueTodayRes, overdueRes, activeLoansRes, balancesRes, todayPaymentsRes] =
+  const [dueTodayRes, overdueRes, activeLoansRes, balancesRes, weekPaymentsRes] =
     await Promise.all([
       supabase
         .from("schedule_items")
@@ -49,8 +61,9 @@ export default async function DashboardPage() {
         .eq("loans.status", "active"),
       supabase
         .from("payments")
-        .select("amount_centavos")
-        .eq("payment_date", today)
+        .select("amount_centavos, payment_date")
+        .gte("payment_date", weekStart)
+        .lte("payment_date", today)
         .is("voided_at", null),
     ]);
 
@@ -60,42 +73,123 @@ export default async function DashboardPage() {
     (a, b) => a + (b.outstanding_centavos ?? 0),
     0
   );
-  const collectedToday = (todayPaymentsRes.data ?? []).reduce((a, p) => a + p.amount_centavos, 0);
+
+  // 7-day collections series (payment_date is already a Manila calendar date)
+  const byDay = new Map<string, number>();
+  for (const p of weekPaymentsRes.data ?? []) {
+    byDay.set(p.payment_date, (byDay.get(p.payment_date) ?? 0) + p.amount_centavos);
+  }
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(weekStart, i);
+    return { date, label: dayLabel(date, today), total: byDay.get(date) ?? 0 };
+  });
+  const collectedToday = days[6].total;
+  const collectedWeek = days.reduce((a, d) => a + d.total, 0);
+
+  // Portfolio aging
+  const overdueAmt = overdue.reduce((a, r) => a + r.total_due_centavos - r.paid_centavos, 0);
+  const dueTodayAmt = dueToday.reduce((a, r) => a + r.total_due_centavos - r.paid_centavos, 0);
+  const notYetDueAmt = Math.max(0, totalOutstanding - overdueAmt - dueTodayAmt);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Good day, {profile.full_name}!</h1>
-        <p className="text-sm text-slate-700">{formatLongDate(today)}</p>
-      </div>
+    <div className="mx-auto max-w-5xl">
+      <PageHeader
+        title={`Good day, ${profile.full_name.split(" ")[0]}!`}
+        description={formatLongDate(today)}
+        action={
+          <Link
+            href="/loans/new"
+            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
+          >
+            + New loan
+          </Link>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Active loans" value={String(activeLoansRes.count ?? 0)} />
-        <Stat label="Total outstanding" value={formatPeso(totalOutstanding)} />
-        <Stat label="Due today" value={String(dueToday.length)} />
+        <Stat label="Total outstanding" value={formatPeso(totalOutstanding)} accent />
+        <Stat
+          label="Due today"
+          value={String(dueToday.length)}
+          hint={dueTodayAmt > 0 ? formatPeso(dueTodayAmt) : undefined}
+        />
         <Stat label="Collected today" value={formatPeso(collectedToday)} good />
       </div>
 
-      <DueTable title="🔔 Due today" rows={dueToday} emptyText="Nothing due today." />
-      <DueTable
-        title="⚠️ Overdue"
-        rows={overdue}
-        emptyText="No overdue payments. Great!"
-        overdue
-      />
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <section className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm lg:col-span-2">
+          <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-base font-semibold text-slate-900">Collections — last 7 days</h2>
+            <p className="text-sm text-slate-700">
+              Week total:{" "}
+              <span className="font-semibold tabular-nums text-slate-900">
+                {formatPeso(collectedWeek)}
+              </span>
+            </p>
+          </div>
+          <CollectionsBarChart days={days} />
+        </section>
+
+        <section className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-base font-semibold text-slate-900">Outstanding portfolio</h2>
+          <AgingBar overdue={overdueAmt} dueToday={dueTodayAmt} notYetDue={notYetDueAmt} />
+          <p className="mt-4 border-t border-slate-200 pt-3 text-sm text-slate-700">
+            Includes unpaid penalties. Follow up on overdue amounts first — they appear in the red
+            list below.
+          </p>
+        </section>
+      </div>
+
+      <div className="mt-6 space-y-6">
+        <DueTable title="Due today" rows={dueToday} emptyText="Nothing due today." />
+        <DueTable
+          title="Overdue — needs follow-up"
+          rows={overdue}
+          emptyText="No overdue payments. Great!"
+          overdue
+        />
+      </div>
     </div>
   );
 }
 
-function Stat({ label, value, good }: { label: string; value: string; good?: boolean }) {
+function Stat({
+  label,
+  value,
+  hint,
+  good,
+  accent,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  good?: boolean;
+  accent?: boolean;
+}) {
   return (
-    <div className="rounded-xl border border-slate-300 bg-white p-3">
-      <p className="text-sm uppercase tracking-wide text-slate-700">{label}</p>
+    <div
+      className={`rounded-xl border p-4 shadow-sm ${
+        accent ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-300 bg-white"
+      }`}
+    >
       <p
-        className={`mt-1 text-lg font-semibold tabular-nums ${good ? "text-emerald-700" : "text-slate-900"}`}
+        className={`text-sm font-medium uppercase tracking-wide ${accent ? "text-emerald-100" : "text-slate-700"}`}
+      >
+        {label}
+      </p>
+      <p
+        className={`mt-1 text-2xl font-bold tabular-nums ${
+          accent ? "text-white" : good ? "text-emerald-700" : "text-slate-900"
+        }`}
       >
         {value}
       </p>
+      {hint && (
+        <p className={`text-sm tabular-nums ${accent ? "text-emerald-100" : "text-slate-600"}`}>
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
@@ -112,51 +206,65 @@ function DueTable({
   overdue?: boolean;
 }) {
   return (
-    <section>
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">{title}</h2>
-      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
-        <table className="w-full text-base">
-          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
-            <tr>
-              <th className="px-4 py-2">Borrower</th>
-              <th className="px-4 py-2">Loan #</th>
-              <th className="px-4 py-2">Due date</th>
-              <th className="px-4 py-2 text-right">Amount due</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {rows.map((r) => (
-              <tr key={r.id} className={overdue ? "bg-red-50/50" : ""}>
-                <td className="px-4 py-2">
-                  <Link
-                    href={`/borrowers/${r.loans.borrowers.id}`}
-                    className="font-medium text-emerald-700"
-                  >
-                    {r.loans.borrowers.full_name}
-                  </Link>
-                  <span className="ml-2 text-sm text-slate-600">{r.loans.borrowers.phone}</span>
-                </td>
-                <td className="px-4 py-2">
-                  <Link href={`/loans/${r.loans.id}`} className="text-emerald-700">
-                    {r.loans.loan_number}
-                  </Link>
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap">{formatLongDate(r.due_date)}</td>
-                <td className="px-4 py-2 text-right tabular-nums">
-                  {formatPeso(r.total_due_centavos - r.paid_centavos)}
-                </td>
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-600">
-                  {emptyText}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <section className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+        <h2 className="text-base font-semibold text-slate-900">
+          {overdue && rows.length > 0 && (
+            <span className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-red-600" aria-hidden />
+          )}
+          {title}
+        </h2>
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-sm font-semibold ${
+            overdue && rows.length > 0 ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-700"
+          }`}
+        >
+          {rows.length}
+        </span>
       </div>
+      <table className="w-full text-base">
+        <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+          <tr>
+            <th className="px-4 py-2 font-semibold">Borrower</th>
+            <th className="hidden px-4 py-2 font-semibold sm:table-cell">Loan #</th>
+            <th className="px-4 py-2 font-semibold">Due date</th>
+            <th className="px-4 py-2 text-right font-semibold">Amount due</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-200">
+          {rows.map((r) => (
+            <tr key={r.id} className={overdue ? "bg-red-50/50" : ""}>
+              <td className="px-4 py-2.5">
+                <Link
+                  href={`/borrowers/${r.loans.borrowers.id}`}
+                  className="font-medium text-emerald-700 hover:underline"
+                >
+                  {r.loans.borrowers.full_name}
+                </Link>
+                <span className="ml-2 hidden text-sm text-slate-600 md:inline">
+                  {r.loans.borrowers.phone}
+                </span>
+              </td>
+              <td className="hidden px-4 py-2.5 sm:table-cell">
+                <Link href={`/loans/${r.loans.id}`} className="text-emerald-700 hover:underline">
+                  {r.loans.loan_number}
+                </Link>
+              </td>
+              <td className="whitespace-nowrap px-4 py-2.5">{formatLongDate(r.due_date)}</td>
+              <td className="px-4 py-2.5 text-right font-medium tabular-nums">
+                {formatPeso(r.total_due_centavos - r.paid_centavos)}
+              </td>
+            </tr>
+          ))}
+          {rows.length === 0 && (
+            <tr>
+              <td colSpan={4} className="px-4 py-8 text-center text-base text-slate-600">
+                {emptyText}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </section>
   );
 }
