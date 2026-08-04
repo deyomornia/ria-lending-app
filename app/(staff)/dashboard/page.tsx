@@ -171,26 +171,41 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Active loans" value={String(activeIds.length)} />
-        <Stat label="Total outstanding" value={formatPeso(totalOutstanding)} accent />
+        <Stat label="Active loans" value={String(activeIds.length)} href="/loans?status=active" />
+        <Stat
+          label="Total outstanding"
+          value={formatPeso(totalOutstanding)}
+          accent
+          href="/loans?status=active&sort=outstanding&dir=desc"
+        />
         <Stat
           label="Due today"
           value={String(dueToday.length)}
           hint={dueTodayAmt > 0 ? formatPeso(dueTodayAmt) : undefined}
+          href="#due-today"
         />
-        <Stat label="Collected today" value={formatPeso(collectedToday)} good />
+        <Stat
+          label="Collected today"
+          value={formatPeso(collectedToday)}
+          good
+          href={`/collections?from=${today}&to=${today}`}
+        />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <section className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm lg:col-span-2">
           <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-base font-semibold text-slate-900">Collections — last 7 days</h2>
-            <p className="text-sm text-slate-700">
+            <Link
+              href={`/collections?from=${weekStart}&to=${today}`}
+              className="text-sm text-slate-700 hover:underline"
+            >
               Week total:{" "}
               <span className="font-semibold tabular-nums text-slate-900">
                 {formatPeso(collectedWeek)}
-              </span>
-            </p>
+              </span>{" "}
+              →
+            </Link>
           </div>
           <CollectionsBarChart days={days} />
         </section>
@@ -205,7 +220,7 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-6 space-y-6" id="due-today">
         <DueTable title="Due today" rows={dueToday} emptyText="Nothing due today." />
         <DueTable
           title="Overdue — needs follow-up"
@@ -224,18 +239,20 @@ function Stat({
   hint,
   good,
   accent,
+  href,
 }: {
   label: string;
   value: string;
   hint?: string;
   good?: boolean;
   accent?: boolean;
+  href?: string;
 }) {
-  return (
+  const inner = (
     <div
-      className={`rounded-xl border p-4 shadow-sm ${
+      className={`rounded-xl border p-4 shadow-sm transition-shadow ${
         accent ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-300 bg-white"
-      }`}
+      } ${href ? "hover:shadow-md" : ""}`}
     >
       <p
         className={`text-sm font-medium uppercase tracking-wide ${accent ? "text-emerald-100" : "text-slate-700"}`}
@@ -256,6 +273,7 @@ function Stat({
       )}
     </div>
   );
+  return href ? <Link href={href}>{inner}</Link> : inner;
 }
 
 function DueTable({

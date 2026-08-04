@@ -43,8 +43,9 @@ export function CollectionsBarChart({
         const r = Math.min(4, h);
         const isToday = i === days.length - 1;
         return (
-          <g key={d.date}>
-            <title>{`${d.label} — ${formatPeso(d.total)}`}</title>
+          <a key={d.date} href={`/collections?from=${d.date}&to=${d.date}`} aria-label={`View collections for ${d.label}`}>
+            <g className="cursor-pointer">
+            <title>{`${d.label} — ${formatPeso(d.total)} (click to view)`}</title>
             {h > 0 ? (
               <path
                 d={`M${x},${y + r} a${r},${r} 0 0 1 ${r},-${r} h${barW - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-barW} Z`}
@@ -75,7 +76,8 @@ export function CollectionsBarChart({
             >
               {d.label}
             </text>
-          </g>
+            </g>
+          </a>
         );
       })}
     </svg>

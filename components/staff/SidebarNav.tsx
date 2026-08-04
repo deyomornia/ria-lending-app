@@ -22,6 +22,9 @@ const ICONS: Record<string, React.ReactNode> = {
   remit: (
     <path d="M12 2 4 6v2h16V6l-8-4zM6 10v7h3v-7H6zm5 0v7h2v-7h-2zm5 0v7h3v-7h-3zM4 19v2h16v-2H4z" />
   ),
+  audit: (
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-5 4h8v2H8v-2zm0 4h8v2H8v-2z" />
+  ),
   settings: (
     <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
   ),
@@ -34,6 +37,7 @@ const NAV = [
   { href: "/loans/new", label: "New Loan", icon: "newloan" },
   { href: "/collections", label: "Collections", icon: "collections" },
   { href: "/remittances", label: "Remittances", icon: "remit" },
+  { href: "/audit", label: "Audit Log", icon: "audit" },
   { href: "/settings", label: "Settings", icon: "settings" },
 ];
 
@@ -48,13 +52,14 @@ export function SidebarNav({
 
   return (
     <nav className={compact ? "flex gap-1" : "flex-1 space-y-1 px-3"}>
-      {NAV.filter((item) => showSettings || item.href !== "/settings").map((item) => {
+      {NAV.filter((item) => showSettings || (item.href !== "/settings" && item.href !== "/audit")).map((item) => {
         const active =
           pathname === item.href ||
           (item.href === "/borrowers" && pathname.startsWith("/borrowers/")) ||
           (item.href === "/loans" && pathname.startsWith("/loans/") && pathname !== "/loans/new") ||
           (item.href === "/collections" && pathname.startsWith("/collections/")) ||
           (item.href === "/remittances" && pathname.startsWith("/remittances/")) ||
+          (item.href === "/audit" && pathname.startsWith("/audit/")) ||
           (item.href === "/settings" && pathname.startsWith("/settings/"));
         return (
           <Link

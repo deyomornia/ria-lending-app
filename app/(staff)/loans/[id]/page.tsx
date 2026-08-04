@@ -235,6 +235,11 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
                 <tbody className="divide-y divide-slate-200">
                   {(payments ?? []).map((p) => (
                     <tr key={p.id} className={p.voided_at ? "opacity-50" : ""}>
+                      <td className="px-3 py-2 font-mono">
+                        <Link href={`/payments/${p.id}`} className="text-emerald-700 hover:underline">
+                          {p.receipt_no ?? "view"}
+                        </Link>
+                      </td>
                       <td className="px-3 py-2 whitespace-nowrap">{formatLongDate(p.payment_date)}</td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {formatPeso(p.amount_centavos)}

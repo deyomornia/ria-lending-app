@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatPeso } from "@/lib/interest/money";
 import { PageHeader } from "@/components/staff/PageHeader";
+import { applySort, SortHeader } from "@/components/staff/SortHeader";
 
 export const metadata = { title: "Loans — RIA Lending" };
 
@@ -37,10 +38,11 @@ type LoanRow = {
 export default async function LoansPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; sort?: string; dir?: string }>;
 }) {
   const { supabase } = await requireStaff();
-  const { status = "all", q = "" } = await searchParams;
+  const { status = "all", q = "", sort = "created", dir: dirRaw = "desc" } = await searchParams;
+  const dir = dirRaw === "asc" ? "asc" as const : "desc" as const;
 
   let query = supabase
     .from("loans")
@@ -70,6 +72,21 @@ export default async function LoansPage({
         .in("loan_id", loans.map((l) => l.id))
     : { data: [] };
   const balanceByLoan = new Map((balances ?? []).map((b) => [b.loan_id, b.outstanding_centavos]));
+
+  loans = applySort(loans, sort, dir, {
+    loan_number: (l) => l.loan_number,
+    borrower: (l) => l.borrowers.full_name,
+    status: (l) => l.status,
+    collector: (l) => l.collector?.full_name ?? "",
+    principal: (l) => l.principal_centavos,
+    outstanding: (l) => balanceByLoan.get(l.id) ?? 0,
+  });
+  const sortProps = {
+    currentSort: sort,
+    currentDir: dir,
+    basePath: "/loans",
+    otherParams: { status, ...(q ? { q } : {}) },
+  };
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -121,12 +138,12 @@ export default async function LoansPage({
         <table className="w-full text-base">
           <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>
-              <th className="px-4 py-2 font-semibold">Loan #</th>
-              <th className="px-4 py-2 font-semibold">Borrower</th>
-              <th className="px-4 py-2 font-semibold">Status</th>
-              <th className="hidden px-4 py-2 font-semibold md:table-cell">Collector</th>
-              <th className="px-4 py-2 text-right font-semibold">Principal</th>
-              <th className="px-4 py-2 text-right font-semibold">Outstanding</th>
+              <SortHeader label="Loan #" col="loan_number" {...sortProps} />
+              <SortHeader label="Borrower" col="borrower" {...sortProps} />
+              <SortHeader label="Status" col="status" {...sortProps} />
+              <SortHeader label="Collector" col="collector" {...sortProps} />
+              <SortHeader label="Principal" col="principal" align="right" {...sortProps} />
+              <SortHeader label="Outstanding" col="outstanding" align="right" {...sortProps} />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">

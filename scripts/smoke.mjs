@@ -153,6 +153,11 @@ try {
   ok("apply_payment RPC", !payErr && !!payId, payErr?.message);
   paymentId = payId;
 
+  const { data: receiptRow } = await admin
+    .from("payments").select("receipt_no").eq("id", paymentId).single();
+  ok("payment gets a chronological receipt number (OR-YYYY-NNNNN)",
+    /^OR-\d{4}-\d{5}$/.test(receiptRow?.receipt_no ?? ""), receiptRow?.receipt_no);
+
   const item1 = (await admin.from("schedule_items").select("*").eq("id", items[0].id).single()).data;
   const bal1 = (await admin.from("loan_balances").select("*").eq("loan_id", loanId).single()).data;
   ok("first installment marked paid", item1?.status === "paid", item1?.status);
@@ -287,6 +292,36 @@ try {
   ok("cash payment with signature saves the signature image",
     sigPay?.signature_data?.startsWith("data:image/png;base64,"),
     `len=${sigPay?.signature_data?.length ?? 0}`);
+
+  // ---------- D1d2. payment detail page: receipt, signature, edit, history ----------
+  await page.goto(`${BASE}/payments/${sigPay.id}`);
+  await page.waitForSelector("text=Receipt no.", { timeout: 15000 });
+  const detailBody = await page.textContent("body");
+  ok("payment detail shows receipt, signature, and history",
+    /OR-\d{4}-\d{5}/.test(detailBody) &&
+    detailBody.includes("Payor's signature") &&
+    detailBody.includes("recorded this payment"));
+
+  await page.getByRole("button", { name: "✏️ Edit details" }).click();
+  const noteInputs = page.locator("div.rounded-xl.border-emerald-300 input");
+  await noteInputs.last().fill("edited by smoke test");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await page.waitForSelector("text=edited the payment details", { timeout: 20000 });
+  const { data: editedPay } = await admin
+    .from("payments").select("note").eq("id", sigPay.id).single();
+  ok("manager edit saves details and appears in payment history",
+    editedPay?.note === "edited by smoke test", editedPay?.note);
+
+  // ---------- D1d3. audit log page (owner-only) ----------
+  await page.goto(BASE + "/audit");
+  await page.waitForSelector("text=Audit log", { timeout: 15000 });
+  ok("audit log page lists actions with actors",
+    (await page.textContent("body")).includes("edited a payment"));
+
+  // sortable headers respond (loans by principal desc)
+  await page.goto(BASE + "/loans?status=all&sort=principal&dir=desc");
+  await page.waitForSelector("text=Every loan on record", { timeout: 15000 });
+  ok("loans table sorts via clickable headers", (await page.textContent("body")).includes("▼"));
 
   await page.selectOption("select:below(:text('Method'))", "gcash").catch(() => {});
   const methodSelects = page.locator("select");

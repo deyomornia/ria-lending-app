@@ -39,6 +39,8 @@ export const config = {
     "/account/:path*",
     "/remittances/:path*",
     "/remittances",
+    "/payments/:path*",
+    "/audit",
     "/settings/:path*",
     "/login",
   ],

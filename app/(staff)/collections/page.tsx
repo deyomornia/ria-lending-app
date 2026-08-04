@@ -5,17 +5,19 @@ import { formatPeso } from "@/lib/interest/money";
 import { formatLongDate, todayInManila } from "@/lib/tz";
 import { VoidPaymentButton } from "@/components/staff/OwnerActions";
 import { PageHeader } from "@/components/staff/PageHeader";
+import { applySort, SortHeader } from "@/components/staff/SortHeader";
 
 export const metadata = { title: "Collections — RIA Lending" };
 
 export default async function CollectionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string; collector?: string }>;
+  searchParams: Promise<{ from?: string; to?: string; collector?: string; sort?: string; dir?: string }>;
 }) {
   const { supabase, profile } = await requireStaff();
   const today = todayInManila();
-  const { from = today, to = today, collector = "" } = await searchParams;
+  const { from = today, to = today, collector = "", sort = "date", dir: dirRaw = "desc" } = await searchParams;
+  const dir = dirRaw === "asc" ? "asc" as const : "desc" as const;
 
   let paymentsQuery = supabase
     .from("payments")
@@ -32,6 +34,20 @@ export default async function CollectionsPage({
     supabase.from("profiles").select("id, full_name").eq("is_active", true).order("full_name"),
   ]);
 
+  const sorted = applySort(payments ?? [], sort, dir, {
+    date: (p) => `${p.payment_date}T${p.paid_at}`,
+    receipt: (p) => p.receipt_no ?? "",
+    borrower: (p) => p.loans.borrowers.full_name,
+    amount: (p) => p.amount_centavos,
+    method: (p) => p.method,
+    collector: (p) => p.collector?.full_name ?? "",
+  });
+  const sortProps = {
+    currentSort: sort,
+    currentDir: dir,
+    basePath: "/collections",
+    otherParams: { from, to, ...(collector ? { collector } : {}) },
+  };
   const valid = (payments ?? []).filter((p) => !p.voided_at);
   const total = valid.reduce((a, p) => a + p.amount_centavos, 0);
 
@@ -100,19 +116,24 @@ export default async function CollectionsPage({
         <table className="w-full text-base">
           <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>
-              <th className="px-4 py-2">Date</th>
-              <th className="px-4 py-2">Borrower</th>
-              <th className="px-4 py-2">Loan #</th>
-              <th className="px-4 py-2 text-right">Amount</th>
-              <th className="px-4 py-2">Method</th>
-              <th className="px-4 py-2">Collector</th>
-              <th className="px-4 py-2">Encoded by</th>
+              <SortHeader label="Receipt #" col="receipt" {...sortProps} />
+              <SortHeader label="Date" col="date" {...sortProps} />
+              <SortHeader label="Borrower" col="borrower" {...sortProps} />
+              <SortHeader label="Amount" col="amount" align="right" {...sortProps} />
+              <SortHeader label="Method" col="method" {...sortProps} />
+              <SortHeader label="Collector" col="collector" {...sortProps} />
+              <th className="px-4 py-2 font-semibold">Encoded by</th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
-            {(payments ?? []).map((p) => (
+            {sorted.map((p) => (
               <tr key={p.id} className={p.voided_at ? "opacity-50" : ""}>
+                <td className="px-4 py-2 font-mono">
+                  <Link href={`/payments/${p.id}`} className="text-emerald-700 hover:underline">
+                    {p.receipt_no ?? "view"}
+                  </Link>
+                </td>
                 <td className="px-4 py-2 whitespace-nowrap">{formatLongDate(p.payment_date)}</td>
                 <td className="px-4 py-2">
                   <Link
@@ -121,9 +142,7 @@ export default async function CollectionsPage({
                   >
                     {p.loans.borrowers.full_name}
                   </Link>
-                </td>
-                <td className="px-4 py-2">
-                  <Link href={`/loans/${p.loans.id}`} className="text-emerald-700">
+                  <Link href={`/loans/${p.loans.id}`} className="ml-2 text-sm text-emerald-700">
                     {p.loans.loan_number}
                   </Link>
                 </td>

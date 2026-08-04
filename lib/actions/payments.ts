@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireOwner, requireStaff } from "@/lib/auth/staff";
+import { requireManager, requireOwner, requireStaff } from "@/lib/auth/staff";
 import { allocatePayment } from "@/lib/allocation";
 import { auditLog } from "@/lib/audit";
 import { todayInManila } from "@/lib/tz";
@@ -95,16 +95,11 @@ export async function recordPayment(input: {
     p_note: input.note ?? null,
     p_item_allocations: plan.itemAllocations,
     p_penalty_allocations: plan.penaltyAllocations,
+    p_collector_id: input.collectorId ?? null,
+    p_signature_data: input.method === "cash" ? (input.signatureData ?? null) : null,
   });
 
   if (error) return { ok: false, error: error.message };
-
-  const extras: Record<string, unknown> = {};
-  if (input.collectorId) extras.collector_id = input.collectorId;
-  if (input.method === "cash" && input.signatureData) extras.signature_data = input.signatureData;
-  if (Object.keys(extras).length > 0) {
-    await supabase.from("payments").update(extras).eq("id", paymentId as string);
-  }
 
   await auditLog({
     actorId: profile.id,
@@ -166,6 +161,78 @@ export async function waivePenalty(
     entityId: penaltyId,
   });
 
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+
+export type UpdatePaymentInput = {
+  paymentDate: string;
+  method: "cash" | "gcash" | "bank";
+  referenceNo: string;
+  collectorId: string | null;
+  note: string;
+};
+
+/**
+ * Manager+ edits a payment's details. The AMOUNT is deliberately not
+ * editable — fixing a wrong amount is done by voiding and re-entering, so the
+ * money math and allocations always stay consistent.
+ */
+export async function updatePaymentDetails(
+  paymentId: string,
+  input: UpdatePaymentInput
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { supabase, profile } = await requireManager();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.paymentDate) || input.paymentDate > todayInManila()) {
+    return { ok: false, error: "Enter a valid payment date (today or earlier)." };
+  }
+  if (!["cash", "gcash", "bank"].includes(input.method)) {
+    return { ok: false, error: "Invalid payment method." };
+  }
+  if (input.method !== "cash" && !input.referenceNo.trim()) {
+    return { ok: false, error: "Electronic payments require the reference number." };
+  }
+
+  const { data: before } = await supabase
+    .from("payments")
+    .select("id, payment_date, method, reference_no, collector_id, note, voided_at")
+    .eq("id", paymentId)
+    .single();
+  if (!before) return { ok: false, error: "Payment not found." };
+  if (before.voided_at) return { ok: false, error: "Voided payments cannot be edited." };
+
+  const after = {
+    payment_date: input.paymentDate,
+    method: input.method,
+    reference_no: input.referenceNo.trim() || null,
+    collector_id: input.collectorId,
+    note: input.note.trim() || null,
+  };
+
+  const { error } = await supabase.from("payments").update(after).eq("id", paymentId);
+  if (error) return { ok: false, error: error.message };
+
+  await auditLog({
+    actorId: profile.id,
+    action: "payment.edit",
+    entity: "payments",
+    entityId: paymentId,
+    detail: {
+      before: {
+        payment_date: before.payment_date,
+        method: before.method,
+        reference_no: before.reference_no,
+        collector_id: before.collector_id,
+        note: before.note,
+      },
+      after,
+    },
+  });
+
+  revalidatePath(`/payments/${paymentId}`);
+  revalidatePath("/collections");
   revalidatePath("/dashboard");
   return { ok: true };
 }
