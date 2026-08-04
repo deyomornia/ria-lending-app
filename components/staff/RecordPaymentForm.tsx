@@ -14,15 +14,20 @@ export function RecordPaymentForm({
   loanId,
   outstanding,
   suggestedAmount,
+  collectors,
+  defaultCollectorId,
 }: {
   loanId: string;
   outstanding: number;
   suggestedAmount: number;
+  collectors: { id: string; full_name: string }[];
+  defaultCollectorId: string | null;
 }) {
   const router = useRouter();
   const [amount, setAmount] = useState(
     suggestedAmount > 0 ? (suggestedAmount / 100).toFixed(2) : ""
   );
+  const [collectorId, setCollectorId] = useState(defaultCollectorId ?? "");
   const [paymentDate, setPaymentDate] = useState(todayInManila());
   const [method, setMethod] = useState<"cash" | "gcash" | "bank">("cash");
   const [referenceNo, setReferenceNo] = useState("");
@@ -41,6 +46,7 @@ export function RecordPaymentForm({
         loanId,
         amountCentavos: centavos,
         paymentDate,
+        collectorId: collectorId || null,
         method,
         referenceNo: referenceNo || undefined,
         note: note || undefined,
@@ -88,6 +94,21 @@ export function RecordPaymentForm({
           <p className="mt-1 text-sm text-slate-600">
             Defaults to today — change it when recording a payment received earlier.
           </p>
+        </div>
+        <div>
+          <label className={labelCls}>Collected by</label>
+          <select
+            className={inputCls}
+            value={collectorId}
+            onChange={(e) => setCollectorId(e.target.value)}
+          >
+            <option value="">— Not specified —</option>
+            {collectors.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.full_name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={labelCls}>Method</label>

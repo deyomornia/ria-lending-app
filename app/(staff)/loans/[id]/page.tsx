@@ -5,6 +5,7 @@ import { formatPeso } from "@/lib/interest/money";
 import { formatLongDate, todayInManila } from "@/lib/tz";
 import { RecordPaymentForm } from "@/components/staff/RecordPaymentForm";
 import { VoidPaymentButton, WaivePenaltyButton } from "@/components/staff/OwnerActions";
+import { CollectorSelect } from "@/components/staff/CollectorSelect";
 
 export const metadata = { title: "Loan — RIA Lending" };
 
@@ -27,7 +28,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
     .single();
   if (!loan) notFound();
 
-  const [{ data: items }, { data: penalties }, { data: payments }, { data: balance }] =
+  const [{ data: items }, { data: penalties }, { data: payments }, { data: balance }, { data: collectors }] =
     await Promise.all([
       supabase.from("schedule_items").select("*").eq("loan_id", id).order("seq"),
       supabase
@@ -37,10 +38,13 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
         .order("assessed_on", { ascending: true }),
       supabase
         .from("payments")
-        .select("*, profiles!payments_received_by_fkey(full_name)")
+        .select(
+          "*, profiles!payments_received_by_fkey(full_name), collector:profiles!payments_collector_id_fkey(full_name)"
+        )
         .eq("loan_id", id)
         .order("paid_at", { ascending: false }),
       supabase.from("loan_balances").select("*").eq("loan_id", id).single(),
+      supabase.from("profiles").select("id, full_name").eq("is_active", true).order("full_name"),
     ]);
 
   const outstanding = balance?.outstanding_centavos ?? 0;
@@ -69,7 +73,12 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             {loan.payment_frequency.replace("_", "-")} · released {formatLongDate(loan.release_date)}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <CollectorSelect
+            loanId={loan.id}
+            collectors={collectors ?? []}
+            currentCollectorId={loan.collector_id ?? null}
+          />
           <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium capitalize text-slate-700">
             {loan.status}
           </span>
@@ -206,7 +215,9 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
                         {p.reference_no ? ` · ${p.reference_no}` : ""}
                       </td>
                       <td className="px-3 py-2 text-sm text-slate-600">
-                        {p.profiles?.full_name ?? ""}
+                        {p.collector?.full_name
+                          ? `collected by ${p.collector.full_name}`
+                          : (p.profiles?.full_name ?? "")}
                         {p.voided_at ? " · VOIDED" : ""}
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -233,6 +244,8 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
               loanId={loan.id}
               outstanding={outstanding}
               suggestedAmount={Math.min(suggested, outstanding)}
+              collectors={collectors ?? []}
+              defaultCollectorId={loan.collector_id ?? null}
             />
           )}
         </div>

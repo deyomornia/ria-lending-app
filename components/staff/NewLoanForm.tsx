@@ -12,13 +12,16 @@ const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-sl
 
 export function NewLoanForm({
   borrowers,
+  collectors,
   preselectedBorrowerId,
 }: {
   borrowers: { id: string; full_name: string; phone: string }[];
+  collectors: { id: string; full_name: string }[];
   preselectedBorrowerId?: string;
 }) {
   const router = useRouter();
   const [borrowerId, setBorrowerId] = useState(preselectedBorrowerId ?? "");
+  const [collectorId, setCollectorId] = useState("");
   const [terms, setTerms] = useState<LoanTerms | null>(null);
   const [result, setResult] = useState<ScheduleResult | null>(null);
   const [penaltyRatePct, setPenaltyRatePct] = useState("5");
@@ -36,7 +39,12 @@ export function NewLoanForm({
 
     setError(null);
     startTransition(async () => {
-      const res = await createLoan(borrowerId, terms, { rateBps, graceDays: grace });
+      const res = await createLoan(
+        borrowerId,
+        terms,
+        { rateBps, graceDays: grace },
+        collectorId || null
+      );
       if (res.ok) {
         router.push(`/loans/${res.loanId}`);
       } else {
@@ -47,20 +55,37 @@ export function NewLoanForm({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-6">
-        <label className={labelCls}>Borrower *</label>
-        <select
-          className={inputCls}
-          value={borrowerId}
-          onChange={(e) => setBorrowerId(e.target.value)}
-        >
-          <option value="">— Select borrower —</option>
-          {borrowers.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.full_name} ({b.phone})
-            </option>
-          ))}
-        </select>
+      <div className="grid gap-4 rounded-xl border border-slate-300 bg-white shadow-sm p-6 sm:grid-cols-2">
+        <div>
+          <label className={labelCls}>Borrower *</label>
+          <select
+            className={inputCls}
+            value={borrowerId}
+            onChange={(e) => setBorrowerId(e.target.value)}
+          >
+            <option value="">— Select borrower —</option>
+            {borrowers.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.full_name} ({b.phone})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelCls}>Assigned collector</label>
+          <select
+            className={inputCls}
+            value={collectorId}
+            onChange={(e) => setCollectorId(e.target.value)}
+          >
+            <option value="">— No collector assigned —</option>
+            {collectors.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.full_name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-6">

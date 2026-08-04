@@ -12,15 +12,19 @@ export default async function NewLoanPage({
   const { supabase } = await requireStaff();
   const { borrower } = await searchParams;
 
-  const { data: borrowers } = await supabase
-    .from("borrowers")
-    .select("id, full_name, phone")
-    .order("full_name");
+  const [{ data: borrowers }, { data: collectors }] = await Promise.all([
+    supabase.from("borrowers").select("id, full_name, phone").order("full_name"),
+    supabase.from("profiles").select("id, full_name").eq("is_active", true).order("full_name"),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader title="New loan" description="Pick the borrower, set the terms, preview the schedule, then activate." />
-      <NewLoanForm borrowers={borrowers ?? []} preselectedBorrowerId={borrower} />
+      <NewLoanForm
+        borrowers={borrowers ?? []}
+        collectors={collectors ?? []}
+        preselectedBorrowerId={borrower}
+      />
     </div>
   );
 }

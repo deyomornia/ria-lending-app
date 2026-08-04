@@ -13,6 +13,9 @@ const ICONS: Record<string, React.ReactNode> = {
   newloan: (
     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
   ),
+  loans: (
+    <path d="M3 5v14h18V5H3zm16 12H5V7h14v10zM7 9h10v2H7V9zm0 4h6v2H7v-2z" />
+  ),
   collections: (
     <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1H6.32c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
   ),
@@ -24,6 +27,7 @@ const ICONS: Record<string, React.ReactNode> = {
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/borrowers", label: "Borrowers", icon: "borrowers" },
+  { href: "/loans", label: "Loans", icon: "loans" },
   { href: "/loans/new", label: "New Loan", icon: "newloan" },
   { href: "/collections", label: "Collections", icon: "collections" },
   { href: "/settings", label: "Settings", icon: "settings" },
@@ -37,8 +41,10 @@ export function SidebarNav({ compact = false }: { compact?: boolean }) {
       {NAV.map((item) => {
         const active =
           pathname === item.href ||
-          (item.href !== "/loans/new" && pathname.startsWith(item.href + "/")) ||
-          (item.href === "/borrowers" && pathname.startsWith("/loans/") && pathname !== "/loans/new");
+          (item.href === "/borrowers" && pathname.startsWith("/borrowers/")) ||
+          (item.href === "/loans" && pathname.startsWith("/loans/") && pathname !== "/loans/new") ||
+          (item.href === "/collections" && pathname.startsWith("/collections/")) ||
+          (item.href === "/settings" && pathname.startsWith("/settings/"));
         return (
           <Link
             key={item.href}

@@ -16,7 +16,8 @@ export type CreateLoanResult = { ok: true; loanId: string } | { ok: false; error
 export async function createLoan(
   borrowerId: string,
   terms: LoanTerms,
-  penalty: { rateBps: number; graceDays: number }
+  penalty: { rateBps: number; graceDays: number },
+  collectorId?: string | null
 ): Promise<CreateLoanResult> {
   const { supabase, profile } = await requireStaff();
 
@@ -66,6 +67,11 @@ export async function createLoan(
 
   if (error) return { ok: false, error: error.message };
 
+  if (collectorId) {
+    // collector is descriptive metadata — assigned right after the atomic create
+    await supabase.from("loans").update({ collector_id: collectorId }).eq("id", data as string);
+  }
+
   await auditLog({
     actorId: profile.id,
     action: "loan.create",
@@ -77,4 +83,37 @@ export async function createLoan(
   revalidatePath("/dashboard");
   revalidatePath(`/borrowers/${borrowerId}`);
   return { ok: true, loanId: data as string };
+}
+
+export async function setLoanCollector(
+  loanId: string,
+  collectorId: string | null
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { supabase, profile } = await requireStaff();
+
+  if (collectorId) {
+    const { data: collector } = await supabase
+      .from("profiles")
+      .select("id, is_active")
+      .eq("id", collectorId)
+      .single();
+    if (!collector?.is_active) return { ok: false, error: "Collector not found or inactive." };
+  }
+
+  const { error } = await supabase
+    .from("loans")
+    .update({ collector_id: collectorId })
+    .eq("id", loanId);
+  if (error) return { ok: false, error: error.message };
+
+  await auditLog({
+    actorId: profile.id,
+    action: "loan.set_collector",
+    entity: "loans",
+    entityId: loanId,
+    detail: { collectorId },
+  });
+  revalidatePath(`/loans/${loanId}`);
+  revalidatePath("/loans");
+  return { ok: true };
 }

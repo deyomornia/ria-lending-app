@@ -15,6 +15,8 @@ export async function recordPayment(input: {
   method: "cash" | "gcash" | "bank";
   referenceNo?: string;
   note?: string;
+  /** who physically collected the money (may differ from the encoder) */
+  collectorId?: string | null;
 }): Promise<PaymentResult> {
   const { supabase, profile } = await requireStaff();
 
@@ -82,6 +84,13 @@ export async function recordPayment(input: {
   });
 
   if (error) return { ok: false, error: error.message };
+
+  if (input.collectorId) {
+    await supabase
+      .from("payments")
+      .update({ collector_id: input.collectorId })
+      .eq("id", paymentId as string);
+  }
 
   await auditLog({
     actorId: profile.id,

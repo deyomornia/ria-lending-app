@@ -198,6 +198,16 @@ try {
     loanBody.includes("ZZ TEST Borrower") && loanBody.includes("₱11,000.00"));
   await page.screenshot({ path: "loan.png", fullPage: true });
 
+  // ---------- D1b. loans list page ----------
+  await page.goto(BASE + "/loans");
+  await page.waitForSelector("text=Every loan on record", { timeout: 15000 });
+  const loansBody = await page.textContent("body");
+  const { data: testLoan } = await admin.from("loans").select("loan_number").eq("id", loanId).single();
+  ok("loans list shows the test loan with borrower and balance",
+    loansBody.includes(testLoan.loan_number) &&
+    loansBody.includes("ZZ TEST Borrower") &&
+    loansBody.includes("₱11,000.00"));
+
   // ---------- D2. staff account management (Settings, owner-only) ----------
   await page.goto(BASE + "/settings");
   await page.waitForSelector("text=Staff accounts", { timeout: 15000 });
