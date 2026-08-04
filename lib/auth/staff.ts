@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isOwnerUp, isManagerUp, type Role } from "@/lib/auth/roles";
 
 export type StaffProfile = {
   id: string;
   full_name: string;
-  role: "owner" | "staff";
+  role: Role;
   is_active: boolean;
 };
 
@@ -27,8 +28,16 @@ export async function requireStaff() {
   return { supabase, user, profile: profile as StaffProfile };
 }
 
+/** Owner or Super admin. */
 export async function requireOwner() {
   const ctx = await requireStaff();
-  if (ctx.profile.role !== "owner") redirect("/dashboard");
+  if (!isOwnerUp(ctx.profile.role)) redirect("/dashboard");
+  return ctx;
+}
+
+/** Manager, Owner, or Super admin. */
+export async function requireManager() {
+  const ctx = await requireStaff();
+  if (!isManagerUp(ctx.profile.role)) redirect("/dashboard");
   return ctx;
 }

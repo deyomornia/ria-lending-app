@@ -33,12 +33,18 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: "settings" },
 ];
 
-export function SidebarNav({ compact = false }: { compact?: boolean }) {
+export function SidebarNav({
+  compact = false,
+  showSettings = true,
+}: {
+  compact?: boolean;
+  showSettings?: boolean;
+}) {
   const pathname = usePathname();
 
   return (
     <nav className={compact ? "flex gap-1" : "flex-1 space-y-1 px-3"}>
-      {NAV.map((item) => {
+      {NAV.filter((item) => showSettings || item.href !== "/settings").map((item) => {
         const active =
           pathname === item.href ||
           (item.href === "/borrowers" && pathname.startsWith("/borrowers/")) ||

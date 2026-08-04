@@ -5,6 +5,7 @@ import { randomBytes } from "crypto";
 import { requireOwner } from "@/lib/auth/staff";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { auditLog } from "@/lib/audit";
+import { ASSIGNABLE_ROLES, type AssignableRole, type Role } from "@/lib/auth/roles";
 
 /** This account can never be demoted, deactivated, or deleted. */
 const SUPER_ADMIN_EMAIL = "deodexter95@gmail.com";
@@ -13,7 +14,7 @@ export type StaffAccount = {
   id: string;
   full_name: string;
   email: string;
-  role: "owner" | "staff";
+  role: Role;
   is_active: boolean;
   isSuperAdmin: boolean;
 };
@@ -58,7 +59,7 @@ export async function listStaffAccounts(): Promise<StaffAccount[]> {
 export async function createStaffAccount(input: {
   fullName: string;
   email: string;
-  role: "owner" | "staff";
+  role: AssignableRole;
   password?: string;
 }): Promise<Result<{ password: string }>> {
   const { profile } = await requireOwner();
@@ -67,7 +68,7 @@ export async function createStaffAccount(input: {
   const email = input.email.trim().toLowerCase();
   if (!fullName) return { ok: false, error: "Full name is required." };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: "Enter a valid email." };
-  if (input.role !== "owner" && input.role !== "staff")
+  if (!ASSIGNABLE_ROLES.includes(input.role))
     return { ok: false, error: "Invalid role." };
   const password = input.password?.trim() || generatePassword();
   if (password.length < 8) return { ok: false, error: "Password must be at least 8 characters." };
@@ -112,18 +113,21 @@ export async function createStaffAccount(input: {
 
 export async function updateStaffAccount(
   targetId: string,
-  input: { fullName: string; role: "owner" | "staff"; isActive: boolean }
+  input: { fullName: string; role: AssignableRole; isActive: boolean }
 ): Promise<Result> {
   const { profile, user } = await requireOwner();
   const email = await targetEmail(targetId);
   if (email === null) return { ok: false, error: "Account not found." };
 
   const isSuper = email.toLowerCase() === SUPER_ADMIN_EMAIL;
-  if (isSuper && (input.role !== "owner" || !input.isActive)) {
-    return { ok: false, error: "The super admin account cannot be demoted or deactivated." };
+  if (isSuper) {
+    return { ok: false, error: "The super admin account cannot be modified." };
   }
   if (targetId === user.id && (!input.isActive || input.role !== "owner")) {
     return { ok: false, error: "You cannot deactivate or demote your own account." };
+  }
+  if (!ASSIGNABLE_ROLES.includes(input.role)) {
+    return { ok: false, error: "Invalid role." };
   }
   const fullName = input.fullName.trim();
   if (!fullName) return { ok: false, error: "Full name is required." };

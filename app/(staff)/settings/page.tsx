@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/staff/PageHeader";
 import { StaffAccountsManager } from "@/components/staff/StaffAccountsManager";
 import { requireStaff } from "@/lib/auth/staff";
+import { isOwnerUp } from "@/lib/auth/roles";
 import { updateCompanySettings } from "@/lib/actions/settings";
 import { listStaffAccounts } from "@/lib/actions/staff";
 
@@ -16,7 +17,7 @@ export default async function SettingsPage() {
     .select("*")
     .eq("id", 1)
     .single();
-  const isOwner = profile.role === "owner";
+  const isOwner = isOwnerUp(profile.role);
   const accounts = isOwner ? await listStaffAccounts() : [];
 
   return (

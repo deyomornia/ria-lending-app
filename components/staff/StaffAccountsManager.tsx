@@ -9,6 +9,7 @@ import {
   updateStaffAccount,
   type StaffAccount,
 } from "@/lib/actions/staff";
+import { ASSIGNABLE_ROLES, ROLE_LABELS, type AssignableRole } from "@/lib/auth/roles";
 
 const inputCls =
   "w-full rounded-md border border-slate-300 px-3 py-2 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
@@ -40,8 +41,8 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
         <div>
           <h2 className="text-base font-semibold text-slate-900">Staff accounts</h2>
           <p className="text-sm text-slate-600">
-            Owners manage everything; staff can record loans and payments but cannot void, waive,
-            or manage accounts.
+            Owners control everything. Managers approve loans and monitor collectors.
+            Collectors propose loans, encode borrowers, and record collections.
           </p>
         </div>
         <button
@@ -128,7 +129,7 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
                   )}
                 </td>
                 <td className="hidden px-4 py-2.5 text-slate-700 md:table-cell">{a.email}</td>
-                <td className="px-4 py-2.5 capitalize text-slate-700">{a.role}</td>
+                <td className="px-4 py-2.5 text-slate-700">{ROLE_LABELS[a.role] ?? a.role}</td>
                 <td className="px-4 py-2.5">
                   <span
                     className={`rounded-full px-2 py-0.5 text-sm font-medium ${
@@ -203,13 +204,13 @@ function AddAccountForm({
   onSubmit: (input: {
     fullName: string;
     email: string;
-    role: "owner" | "staff";
+    role: AssignableRole;
     password?: string;
   }) => void;
 }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"owner" | "staff">("staff");
+  const [role, setRole] = useState<AssignableRole>("collector");
   const [password, setPassword] = useState("");
 
   return (
@@ -233,10 +234,13 @@ function AddAccountForm({
           <select
             className={inputCls}
             value={role}
-            onChange={(e) => setRole(e.target.value as "owner" | "staff")}
+            onChange={(e) => setRole(e.target.value as AssignableRole)}
           >
-            <option value="staff">Staff / Collector</option>
-            <option value="owner">Owner</option>
+            {ASSIGNABLE_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_LABELS[r]}
+              </option>
+            ))}
           </select>
         </div>
         <div>
@@ -272,10 +276,12 @@ function EditRow({
   account: StaffAccount;
   pending: boolean;
   onCancel: () => void;
-  onSave: (input: { fullName: string; role: "owner" | "staff"; isActive: boolean }) => void;
+  onSave: (input: { fullName: string; role: AssignableRole; isActive: boolean }) => void;
 }) {
   const [fullName, setFullName] = useState(account.full_name);
-  const [role, setRole] = useState<"owner" | "staff">(account.role);
+  const [role, setRole] = useState<AssignableRole>(
+    account.role === "super_admin" || account.role === "staff" ? "collector" : account.role
+  );
   const [isActive, setIsActive] = useState(account.is_active);
 
   return (
@@ -288,10 +294,13 @@ function EditRow({
         <select
           className={inputCls}
           value={role}
-          onChange={(e) => setRole(e.target.value as "owner" | "staff")}
+          onChange={(e) => setRole(e.target.value as AssignableRole)}
         >
-          <option value="staff">Staff</option>
-          <option value="owner">Owner</option>
+          {ASSIGNABLE_ROLES.map((r) => (
+            <option key={r} value={r}>
+              {ROLE_LABELS[r]}
+            </option>
+          ))}
         </select>
       </td>
       <td className="px-4 py-2.5">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/auth/staff";
+import { isOwnerUp } from "@/lib/auth/roles";
 import { formatPeso } from "@/lib/interest/money";
 import { formatLongDate, todayInManila } from "@/lib/tz";
 import { RecordPaymentForm } from "@/components/staff/RecordPaymentForm";
@@ -183,7 +184,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
                           )}
                         </td>
                         <td className="px-3 py-2 text-right">
-                          {profile.role === "owner" &&
+                          {isOwnerUp(profile.role) &&
                             !p.waived_at &&
                             p.paid_centavos < p.amount_centavos && (
                               <WaivePenaltyButton penaltyId={p.id} />
@@ -221,7 +222,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
                         {p.voided_at ? " · VOIDED" : ""}
                       </td>
                       <td className="px-3 py-2 text-right">
-                        {profile.role === "owner" && !p.voided_at && (
+                        {isOwnerUp(profile.role) && !p.voided_at && (
                           <VoidPaymentButton paymentId={p.id} />
                         )}
                       </td>

@@ -1,10 +1,12 @@
 import { requireStaff } from "@/lib/auth/staff";
 import { SignOutButton } from "@/components/staff/SignOutButton";
 import { SidebarNav } from "@/components/staff/SidebarNav";
+import { isOwnerUp, ROLE_LABELS } from "@/lib/auth/roles";
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const { profile, user } = await requireStaff();
   const hasTempPassword = user.user_metadata?.temp_password === true;
+  const canSeeSettings = isOwnerUp(profile.role);
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -15,12 +17,12 @@ export default async function StaffLayout({ children }: { children: React.ReactN
           </div>
           <div>
             <p className="text-lg font-bold leading-tight">RIA Lending</p>
-            <p className="text-sm text-emerald-200/80 capitalize">
-              {profile.full_name.split(" ")[0]} · {profile.role}
+            <p className="text-sm text-emerald-200/80">
+              {profile.full_name.split(" ")[0]} · {ROLE_LABELS[profile.role] ?? profile.role}
             </p>
           </div>
         </div>
-        <SidebarNav />
+        <SidebarNav showSettings={canSeeSettings} />
         <div className="space-y-2 border-t border-emerald-900 px-5 py-4">
           <a href="/account/password" className="block text-sm text-emerald-200 hover:text-white">
             Change password
@@ -37,7 +39,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
             <SignOutButton />
           </div>
           <div className="mt-2 overflow-x-auto">
-            <SidebarNav compact />
+            <SidebarNav compact showSettings={canSeeSettings} />
           </div>
         </div>
         <main className="p-4 sm:p-8">

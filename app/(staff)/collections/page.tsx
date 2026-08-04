@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
+import { isOwnerUp } from "@/lib/auth/roles";
 import { formatPeso } from "@/lib/interest/money";
 import { formatLongDate, todayInManila } from "@/lib/tz";
 import { VoidPaymentButton } from "@/components/staff/OwnerActions";
@@ -139,7 +140,7 @@ export default async function CollectionsPage({
                 </td>
                 <td className="px-4 py-2 text-sm text-slate-700">{p.profiles?.full_name}</td>
                 <td className="px-4 py-2 text-right">
-                  {profile.role === "owner" && !p.voided_at && (
+                  {isOwnerUp(profile.role) && !p.voided_at && (
                     <VoidPaymentButton paymentId={p.id} />
                   )}
                 </td>
