@@ -77,6 +77,8 @@ export async function createStaffAccount(input: {
     email,
     password,
     email_confirm: true,
+    // shows the "change your temporary password" banner until they set their own
+    user_metadata: { temp_password: true },
   });
   if (userErr) {
     return {
@@ -157,7 +159,10 @@ export async function resetStaffPassword(
 
   const password = generatePassword();
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.updateUserById(targetId, { password });
+  const { error } = await admin.auth.admin.updateUserById(targetId, {
+    password,
+    user_metadata: { temp_password: true },
+  });
   if (error) return { ok: false, error: error.message };
 
   await auditLog({

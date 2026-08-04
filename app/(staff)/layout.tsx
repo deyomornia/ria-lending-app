@@ -3,7 +3,8 @@ import { SignOutButton } from "@/components/staff/SignOutButton";
 import { SidebarNav } from "@/components/staff/SidebarNav";
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await requireStaff();
+  const { profile, user } = await requireStaff();
+  const hasTempPassword = user.user_metadata?.temp_password === true;
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -20,7 +21,10 @@ export default async function StaffLayout({ children }: { children: React.ReactN
           </div>
         </div>
         <SidebarNav />
-        <div className="border-t border-emerald-900 px-5 py-4">
+        <div className="space-y-2 border-t border-emerald-900 px-5 py-4">
+          <a href="/account/password" className="block text-sm text-emerald-200 hover:text-white">
+            Change password
+          </a>
           <SignOutButton />
         </div>
       </aside>
@@ -36,7 +40,18 @@ export default async function StaffLayout({ children }: { children: React.ReactN
             <SidebarNav compact />
           </div>
         </div>
-        <main className="p-4 sm:p-8">{children}</main>
+        <main className="p-4 sm:p-8">
+          {hasTempPassword && (
+            <div className="mx-auto mb-6 max-w-5xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
+              🔑 You are still using a temporary password.{" "}
+              <a href="/account/password" className="font-semibold underline">
+                Set your own password now
+              </a>{" "}
+              to keep your account secure.
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

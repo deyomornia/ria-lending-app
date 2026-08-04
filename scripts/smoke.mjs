@@ -227,6 +227,34 @@ try {
   }
   ok("delete account via UI removes it", uiRowGone);
 
+  // ---------- D3. self-service password change ----------
+  const NEW_PW = TEST_STAFF_PW + "-changed";
+  await page.goto(BASE + "/account/password");
+  await page.waitForSelector("text=Current password", { timeout: 15000 });
+  await page.fill('input[autocomplete="current-password"]', "wrong-password-123");
+  const pwInputs = page.locator('input[autocomplete="new-password"]');
+  await pwInputs.nth(0).fill(NEW_PW);
+  await pwInputs.nth(1).fill(NEW_PW);
+  await page.getByRole("button", { name: "Change password" }).click();
+  await page.waitForSelector("text=Current password is incorrect", { timeout: 15000 });
+  ok("password change rejects wrong current password", true);
+
+  await page.fill('input[autocomplete="current-password"]', TEST_STAFF_PW);
+  await pwInputs.nth(0).fill(NEW_PW);
+  await pwInputs.nth(1).fill(NEW_PW);
+  await page.getByRole("button", { name: "Change password" }).click();
+  await page.waitForSelector("text=Password changed", { timeout: 15000 });
+  ok("password change succeeds with correct current password", true);
+
+  // sign out, then sign back in with the NEW password
+  await page.getByRole("button", { name: "Sign out" }).first().click();
+  await page.waitForURL("**/login", { timeout: 15000 });
+  await page.fill('input[type="email"]', TEST_STAFF_EMAIL);
+  await page.fill('input[type="password"]', NEW_PW);
+  await page.click('button[type="submit"]');
+  await page.waitForURL("**/dashboard", { timeout: 30000 });
+  ok("sign in works with the new password", true);
+
   const pdfResp = await page.request.get(`${BASE}/api/loans/${loanId}/agreement`);
   const pdfBuf = await pdfResp.body();
   ok("agreement PDF renders (authenticated)",
