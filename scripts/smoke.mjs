@@ -20,11 +20,13 @@ const TEST_STAFF_PW = "Smoke-" + Math.random().toString(36).slice(2) + "-9x!";
 const ACCESS_CODE = "424242";
 const UI_TEST_EMAIL = "zz-ui-test@example.com";
 
-let staffUserId, borrowerId, loanId, loan2Id, paymentId;
+let staffUserId, collectorUserId, borrowerId, loanId, loan2Id, loan3Id, paymentId;
+const COLLECTOR_EMAIL = "zz-smoke-collector@example.com";
+const COLLECTOR_PW = "Collect-" + Math.random().toString(36).slice(2) + "-7z!";
 
 async function cleanup() {
   try {
-    for (const lid of [loanId, loan2Id]) {
+    for (const lid of [loanId, loan2Id, loan3Id]) {
       if (!lid) continue;
       const { data: pays } = await admin.from("payments").select("id").eq("loan_id", lid);
       for (const p of pays ?? []) {
@@ -40,8 +42,13 @@ async function cleanup() {
       await admin.from("borrowers").delete().eq("id", borrowerId);
     }
     if (staffUserId) {
+      await admin.from("remittances").delete().eq("collector_id", staffUserId);
       await admin.from("profiles").delete().eq("id", staffUserId);
       await admin.auth.admin.deleteUser(staffUserId);
+    }
+    if (collectorUserId) {
+      await admin.from("profiles").delete().eq("id", collectorUserId);
+      await admin.auth.admin.deleteUser(collectorUserId);
     }
     // in case the UI-created account survived a mid-test failure
     const { data: leftovers } = await admin.auth.admin.listUsers({ perPage: 200 });
@@ -250,6 +257,114 @@ try {
     releasedLoan.released_by === staffUserId &&
     releasedLoan.first_due_date > todayManila,
     `status=${releasedLoan.status} release=${releasedLoan.release_date} firstDue=${releasedLoan.first_due_date}`);
+
+  // ---------- D1d. payment integrity: signature for cash, ref for e-payments ----------
+  await page.goto(`${BASE}/loans/${loanId}`);
+  await page.waitForSelector("text=Record payment", { timeout: 15000 });
+  await page.fill('input[type="number"]', "1");
+  await page.getByRole("button", { name: "Record payment" }).click();
+  await page.waitForSelector("text=require the payor's signature", { timeout: 15000 });
+  ok("cash payment without signature is rejected", true);
+
+  // draw a signature on the canvas
+  const canvas = page.locator("canvas");
+  const box = await canvas.boundingBox();
+  await page.mouse.move(box.x + 30, box.y + 60);
+  await page.mouse.down();
+  for (let i = 1; i <= 8; i++) {
+    await page.mouse.move(box.x + 30 + i * 25, box.y + 60 + Math.sin(i) * 30, { steps: 3 });
+  }
+  await page.mouse.up();
+  await page.getByRole("button", { name: "Record payment" }).click();
+  await page.waitForSelector("text=Payment recorded", { timeout: 20000 });
+  const { data: sigPay } = await admin
+    .from("payments")
+    .select("id, signature_data")
+    .eq("loan_id", loanId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+  ok("cash payment with signature saves the signature image",
+    sigPay?.signature_data?.startsWith("data:image/png;base64,"),
+    `len=${sigPay?.signature_data?.length ?? 0}`);
+
+  await page.selectOption("select:below(:text('Method'))", "gcash").catch(() => {});
+  const methodSelects = page.locator("select");
+  // method select is the one containing a GCash option
+  for (let i = 0; i < (await methodSelects.count()); i++) {
+    const opts = await methodSelects.nth(i).locator("option").allTextContents();
+    if (opts.some((o) => o.includes("GCash"))) { await methodSelects.nth(i).selectOption("gcash"); break; }
+  }
+  await page.fill('input[type="number"]', "1");
+  await page.getByRole("button", { name: "Record payment" }).click();
+  await page.waitForSelector("text=require the reference number", { timeout: 15000 });
+  ok("gcash payment without reference no. is rejected", true);
+
+  // ---------- D1e. remittance: submit -> confirm ----------
+  await page.goto(BASE + "/remittances");
+  await page.waitForSelector("text=Submit remittance", { timeout: 15000 });
+  await page.locator('input[type="number"]').last().fill("1.00");
+  await page.getByRole("button", { name: "Submit remittance" }).click();
+  await page.waitForSelector("text=Remittance submitted", { timeout: 15000 });
+  ok("remittance submitted via UI", true);
+  await page.getByRole("button", { name: "Confirm receipt" }).first().click();
+  await page.getByRole("button", { name: "Cash received?" }).first().click();
+  await page.waitForSelector("text=Confirmed ·", { timeout: 15000 });
+  const { data: remitRow } = await admin
+    .from("remittances")
+    .select("status, confirmed_by")
+    .eq("collector_id", staffUserId)
+    .order("submitted_at", { ascending: false })
+    .limit(1)
+    .single();
+  ok("remittance confirmed by manager", remitRow?.status === "confirmed");
+
+  // ---------- D1f. regression: a COLLECTOR can release an approved loan ----------
+  const { data: colUser } = await admin.auth.admin.createUser({
+    email: COLLECTOR_EMAIL, password: COLLECTOR_PW, email_confirm: true,
+  });
+  collectorUserId = colUser.user.id;
+  await admin.from("profiles").insert({ id: collectorUserId, full_name: "ZZ Smoke Collector", role: "collector" });
+
+  const { data: loan3 } = await admin.rpc("create_loan_with_schedule", {
+    p_initial_status: "approved",
+    p_borrower_id: borrowerId, p_interest_method: "one_time_fixed",
+    p_principal_centavos: 200000, p_interest_rate_bps: null,
+    p_fixed_interest_centavos: 20000, p_payment_frequency: "monthly",
+    p_term_periods: 1, p_processing_fee_centavos: 0,
+    p_release_date: "2026-08-04", p_first_due_date: "2026-09-04",
+    p_total_interest_centavos: 20000, p_total_payable_centavos: 220000,
+    p_penalty_rate_bps: 500, p_penalty_grace_days: 3, p_created_by: collectorUserId,
+    p_schedule: [{ seq: 1, due_date: "2026-09-04", principal_due: 200000, interest_due: 20000, total_due: 220000 }],
+  });
+  loan3Id = loan3;
+
+  const tokenRes = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: COLLECTOR_EMAIL, password: COLLECTOR_PW }),
+  });
+  const { access_token } = await tokenRes.json();
+  const relRes = await fetch(`${SUPA_URL}/rest/v1/rpc/release_loan`, {
+    method: "POST",
+    headers: {
+      apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      p_loan_id: loan3Id,
+      p_released_by: collectorUserId,
+      p_release_date: new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" }).format(new Date()),
+      p_first_due_date: "2026-09-10",
+      p_schedule: [{ seq: 1, due_date: "2026-09-10", principal_due: 200000, interest_due: 20000, total_due: 220000 }],
+    }),
+  });
+  const relBody = await relRes.text();
+  const { data: loan3After } = await admin.from("loans").select("status").eq("id", loan3Id).single();
+  ok("collector can release an approved loan (RLS regression)",
+    relRes.status === 200 && loan3After?.status === "active",
+    `http=${relRes.status} status=${loan3After?.status} ${relBody.slice(0, 80)}`);
 
   // ---------- D2. staff account management (Settings, owner-only) ----------
   await page.goto(BASE + "/settings");

@@ -37,6 +37,8 @@ export const config = {
     "/loans/:path*",
     "/collections/:path*",
     "/account/:path*",
+    "/remittances/:path*",
+    "/remittances",
     "/settings/:path*",
     "/login",
   ],

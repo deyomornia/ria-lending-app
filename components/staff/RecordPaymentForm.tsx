@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { recordPayment } from "@/lib/actions/payments";
 import { formatPeso } from "@/lib/interest/money";
 import { todayInManila } from "@/lib/tz";
+import { SignaturePad } from "@/components/staff/SignaturePad";
 
 const inputCls =
   "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
@@ -31,6 +32,7 @@ export function RecordPaymentForm({
   const [paymentDate, setPaymentDate] = useState(todayInManila());
   const [method, setMethod] = useState<"cash" | "gcash" | "bank">("cash");
   const [referenceNo, setReferenceNo] = useState("");
+  const [signature, setSignature] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -40,6 +42,10 @@ export function RecordPaymentForm({
     const centavos = Math.round(parseFloat(amount) * 100);
     if (!Number.isFinite(centavos) || centavos <= 0) return setError("Enter a valid amount.");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return setError("Enter a valid payment date.");
+    if (method === "cash" && !signature)
+      return setError("Cash payments require the payor's signature.");
+    if (method !== "cash" && !referenceNo.trim())
+      return setError("Electronic payments require the reference number.");
     setError(null);
     startTransition(async () => {
       const res = await recordPayment({
@@ -47,6 +53,7 @@ export function RecordPaymentForm({
         amountCentavos: centavos,
         paymentDate,
         collectorId: collectorId || null,
+        signatureData: method === "cash" ? signature : null,
         method,
         referenceNo: referenceNo || undefined,
         note: note || undefined,
@@ -56,6 +63,7 @@ export function RecordPaymentForm({
         setTimeout(() => setSuccess(false), 2500);
         setReferenceNo("");
         setNote("");
+        setSignature(null);
         router.refresh();
       } else {
         setError(res.error);
@@ -124,12 +132,20 @@ export function RecordPaymentForm({
         </div>
         {method !== "cash" && (
           <div>
-            <label className={labelCls}>Reference no.</label>
+            <label className={labelCls}>Reference no. *</label>
             <input
+              required
+              placeholder={method === "gcash" ? "GCash ref no." : "Bank transaction ref"}
               className={inputCls}
               value={referenceNo}
               onChange={(e) => setReferenceNo(e.target.value)}
             />
+          </div>
+        )}
+        {method === "cash" && (
+          <div>
+            <label className={labelCls}>Payor&apos;s signature *</label>
+            <SignaturePad onChange={setSignature} />
           </div>
         )}
         <div>

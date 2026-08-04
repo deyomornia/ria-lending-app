@@ -17,6 +17,8 @@ export async function recordPayment(input: {
   note?: string;
   /** who physically collected the money (may differ from the encoder) */
   collectorId?: string | null;
+  /** payor's signature (PNG data URL) — required for cash */
+  signatureData?: string | null;
 }): Promise<PaymentResult> {
   const { supabase, profile } = await requireStaff();
 
@@ -30,6 +32,18 @@ export async function recordPayment(input: {
   }
   if (paymentDate > todayInManila()) {
     return { ok: false, error: "Payment date cannot be in the future" };
+  }
+
+  if (input.method === "cash") {
+    const sig = input.signatureData ?? "";
+    if (!sig.startsWith("data:image/png;base64,") || sig.length < 500) {
+      return { ok: false, error: "Cash payments require the payor's signature." };
+    }
+    if (sig.length > 500_000) {
+      return { ok: false, error: "Signature image is too large — please clear and sign again." };
+    }
+  } else if (!input.referenceNo?.trim()) {
+    return { ok: false, error: "Electronic payments require the reference number." };
   }
 
   const { data: loan } = await supabase
@@ -85,11 +99,11 @@ export async function recordPayment(input: {
 
   if (error) return { ok: false, error: error.message };
 
-  if (input.collectorId) {
-    await supabase
-      .from("payments")
-      .update({ collector_id: input.collectorId })
-      .eq("id", paymentId as string);
+  const extras: Record<string, unknown> = {};
+  if (input.collectorId) extras.collector_id = input.collectorId;
+  if (input.method === "cash" && input.signatureData) extras.signature_data = input.signatureData;
+  if (Object.keys(extras).length > 0) {
+    await supabase.from("payments").update(extras).eq("id", paymentId as string);
   }
 
   await auditLog({
