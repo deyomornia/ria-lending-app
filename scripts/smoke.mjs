@@ -174,8 +174,16 @@ try {
   await page.fill('input[type="email"]', TEST_STAFF_EMAIL);
   await page.fill('input[type="password"]', TEST_STAFF_PW);
   await page.click('button[type="submit"]');
-  await page.waitForURL("**/dashboard", { timeout: 20000 });
-  ok("staff login → dashboard", true);
+  try {
+    await page.waitForURL("**/dashboard", { timeout: 30000 });
+    ok("staff login → dashboard", true);
+  } catch {
+    const err = await page.textContent("body").catch(() => "");
+    throw new Error(
+      "staff login did not reach dashboard (possible Supabase auth rate limit — wait a few minutes and rerun). Page said: " +
+        err.slice(0, 200)
+    );
+  }
   await page.waitForTimeout(1500);
   await page.screenshot({ path: "dashboard.png", fullPage: true });
 
@@ -192,7 +200,8 @@ try {
 
   // ---------- D2. staff account management (Settings, owner-only) ----------
   await page.goto(BASE + "/settings");
-  const superRow = page.locator("tr", { hasText: "Super admin" });
+  await page.waitForSelector("text=Staff accounts", { timeout: 15000 });
+  const superRow = page.locator("tbody tr", { hasText: "Super admin" });
   ok("settings lists accounts with Super admin badge", (await superRow.count()) === 1);
   ok("super admin row has no Edit/Delete buttons",
     (await superRow.getByRole("button", { name: "Delete" }).count()) === 0 &&
@@ -207,12 +216,16 @@ try {
   ok("add account via UI creates it (temp password revealed)",
     (await page.textContent("body")).includes("Temporary password"));
 
-  const uiRow = page.locator("tr", { hasText: "ZZ UI Test Account" });
+  const uiRow = page.locator("tbody tr", { hasText: "ZZ UI Test Account" });
   await uiRow.getByRole("button", { name: "Delete" }).click();
   await uiRow.getByRole("button", { name: "Confirm delete?" }).click();
-  await page.waitForTimeout(2500);
-  ok("delete account via UI removes it",
-    !(await page.textContent("body")).includes("ZZ UI Test Account"));
+  let uiRowGone = true;
+  try {
+    await uiRow.waitFor({ state: "detached", timeout: 20000 });
+  } catch {
+    uiRowGone = false;
+  }
+  ok("delete account via UI removes it", uiRowGone);
 
   const pdfResp = await page.request.get(`${BASE}/api/loans/${loanId}/agreement`);
   const pdfBuf = await pdfResp.body();
