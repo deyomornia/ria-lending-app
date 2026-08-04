@@ -1,6 +1,8 @@
 import { PageHeader } from "@/components/staff/PageHeader";
+import { StaffAccountsManager } from "@/components/staff/StaffAccountsManager";
 import { requireStaff } from "@/lib/auth/staff";
 import { updateCompanySettings } from "@/lib/actions/settings";
+import { listStaffAccounts } from "@/lib/actions/staff";
 
 export const metadata = { title: "Settings — RIA Lending" };
 
@@ -15,10 +17,15 @@ export default async function SettingsPage() {
     .eq("id", 1)
     .single();
   const isOwner = profile.role === "owner";
+  const accounts = isOwner ? await listStaffAccounts() : [];
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <PageHeader title="Settings" description="Company details shown on printed loan agreements." />
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHeader
+        title="Settings"
+        description="Company details for printed agreements, and staff account management."
+      />
+      {isOwner && <StaffAccountsManager accounts={accounts} />}
       <form
         action={updateCompanySettings}
         className="space-y-4 rounded-xl border border-slate-300 bg-white shadow-sm p-6"
@@ -76,15 +83,6 @@ export default async function SettingsPage() {
         )}
       </form>
 
-      <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-6 text-sm text-slate-600">
-        <h2 className="mb-2 font-semibold text-slate-900">Staff accounts</h2>
-        <p>
-          Create staff accounts in the Supabase dashboard (Authentication → Users), then add a
-          matching row in the <code className="rounded bg-slate-100 px-1">profiles</code> table with
-          role <code className="rounded bg-slate-100 px-1">staff</code> or{" "}
-          <code className="rounded bg-slate-100 px-1">owner</code>.
-        </p>
-      </div>
     </div>
   );
 }

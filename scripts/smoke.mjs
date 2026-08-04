@@ -18,6 +18,7 @@ const TEST_PHONE = "+639990000001";
 const TEST_STAFF_EMAIL = "zz-smoke-test@example.com";
 const TEST_STAFF_PW = "Smoke-" + Math.random().toString(36).slice(2) + "-9x!";
 const ACCESS_CODE = "424242";
+const UI_TEST_EMAIL = "zz-ui-test@example.com";
 
 let staffUserId, borrowerId, loanId, paymentId;
 
@@ -40,6 +41,14 @@ async function cleanup() {
     if (staffUserId) {
       await admin.from("profiles").delete().eq("id", staffUserId);
       await admin.auth.admin.deleteUser(staffUserId);
+    }
+    // in case the UI-created account survived a mid-test failure
+    const { data: leftovers } = await admin.auth.admin.listUsers({ perPage: 200 });
+    for (const u of leftovers?.users ?? []) {
+      if (u.email === UI_TEST_EMAIL) {
+        await admin.from("profiles").delete().eq("id", u.id);
+        await admin.auth.admin.deleteUser(u.id);
+      }
     }
     console.log("cleanup: done");
   } catch (e) {
@@ -74,7 +83,7 @@ try {
   });
   if (userErr) throw new Error("create staff: " + userErr.message);
   staffUserId = created.user.id;
-  await admin.from("profiles").insert({ id: staffUserId, full_name: "ZZ Smoke Test", role: "staff" });
+  await admin.from("profiles").insert({ id: staffUserId, full_name: "ZZ Smoke Test", role: "owner" });
 
   const { data: b, error: bErr } = await admin
     .from("borrowers")
@@ -180,6 +189,30 @@ try {
   ok("loan page shows test borrower + schedule",
     loanBody.includes("ZZ TEST Borrower") && loanBody.includes("₱11,000.00"));
   await page.screenshot({ path: "loan.png", fullPage: true });
+
+  // ---------- D2. staff account management (Settings, owner-only) ----------
+  await page.goto(BASE + "/settings");
+  const superRow = page.locator("tr", { hasText: "Super admin" });
+  ok("settings lists accounts with Super admin badge", (await superRow.count()) === 1);
+  ok("super admin row has no Edit/Delete buttons",
+    (await superRow.getByRole("button", { name: "Delete" }).count()) === 0 &&
+    (await superRow.getByRole("button", { name: "Edit" }).count()) === 0);
+
+  await page.getByRole("button", { name: "+ Add account" }).click();
+  const addPanel = page.locator("div.bg-slate-50");
+  await addPanel.locator("input").nth(0).fill("ZZ UI Test Account");
+  await addPanel.locator('input[type="email"]').fill(UI_TEST_EMAIL);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.waitForSelector(`text=${UI_TEST_EMAIL}`, { timeout: 15000 });
+  ok("add account via UI creates it (temp password revealed)",
+    (await page.textContent("body")).includes("Temporary password"));
+
+  const uiRow = page.locator("tr", { hasText: "ZZ UI Test Account" });
+  await uiRow.getByRole("button", { name: "Delete" }).click();
+  await uiRow.getByRole("button", { name: "Confirm delete?" }).click();
+  await page.waitForTimeout(2500);
+  ok("delete account via UI removes it",
+    !(await page.textContent("body")).includes("ZZ UI Test Account"));
 
   const pdfResp = await page.request.get(`${BASE}/api/loans/${loanId}/agreement`);
   const pdfBuf = await pdfResp.body();
