@@ -7,12 +7,16 @@ export const metadata = { title: "Loans — RIA Lending" };
 
 const STATUS_TABS = [
   { key: "all", label: "All" },
+  { key: "pending_approval", label: "Pending" },
+  { key: "approved", label: "Approved" },
   { key: "active", label: "Active" },
   { key: "paid", label: "Paid" },
-  { key: "defaulted", label: "Defaulted" },
 ] as const;
 
 const STATUS_BADGE: Record<string, string> = {
+  pending_approval: "bg-amber-100 text-amber-800",
+  approved: "bg-sky-100 text-sky-800",
+  rejected: "bg-red-100 text-red-700",
   active: "bg-emerald-100 text-emerald-800",
   paid: "bg-slate-100 text-slate-600",
   defaulted: "bg-red-100 text-red-700",
@@ -142,7 +146,7 @@ export default async function LoansPage({
                   <span
                     className={`rounded-full px-2 py-0.5 text-sm font-medium capitalize ${STATUS_BADGE[l.status] ?? ""}`}
                   >
-                    {l.status}
+                    {l.status === "pending_approval" ? "pending" : l.status}
                   </span>
                 </td>
                 <td className="hidden px-4 py-2.5 text-slate-700 md:table-cell">

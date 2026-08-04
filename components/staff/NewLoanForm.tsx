@@ -14,10 +14,13 @@ export function NewLoanForm({
   borrowers,
   collectors,
   preselectedBorrowerId,
+  isProposal,
 }: {
   borrowers: { id: string; full_name: string; phone: string }[];
   collectors: { id: string; full_name: string }[];
   preselectedBorrowerId?: string;
+  /** true for collectors: the loan is submitted for approval, not activated */
+  isProposal: boolean;
 }) {
   const router = useRouter();
   const [borrowerId, setBorrowerId] = useState(preselectedBorrowerId ?? "");
@@ -137,7 +140,11 @@ export function NewLoanForm({
         disabled={pending}
         className="rounded-md bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
       >
-        {pending ? "Creating loan…" : "Create loan & activate"}
+        {pending
+          ? "Submitting…"
+          : isProposal
+            ? "Submit loan proposal for approval"
+            : "Create loan (approved — release cash next)"}
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/staff/PageHeader";
 import { requireStaff } from "@/lib/auth/staff";
+import { isManagerUp } from "@/lib/auth/roles";
 import { NewLoanForm } from "@/components/staff/NewLoanForm";
 
 export const metadata = { title: "New Loan — RIA Lending" };
@@ -9,7 +10,7 @@ export default async function NewLoanPage({
 }: {
   searchParams: Promise<{ borrower?: string }>;
 }) {
-  const { supabase } = await requireStaff();
+  const { supabase, profile } = await requireStaff();
   const { borrower } = await searchParams;
 
   const [{ data: borrowers }, { data: collectors }] = await Promise.all([
@@ -24,6 +25,7 @@ export default async function NewLoanPage({
         borrowers={borrowers ?? []}
         collectors={collectors ?? []}
         preselectedBorrowerId={borrower}
+        isProposal={!isManagerUp(profile.role)}
       />
     </div>
   );

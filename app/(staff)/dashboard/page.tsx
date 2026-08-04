@@ -4,6 +4,7 @@ import { formatPeso } from "@/lib/interest/money";
 import { addDays } from "@/lib/interest/dates";
 import { formatLongDate, todayInManila } from "@/lib/tz";
 import { PageHeader } from "@/components/staff/PageHeader";
+import { isManagerUp } from "@/lib/auth/roles";
 import { AgingBar, CollectionsBarChart } from "@/components/staff/DashboardCharts";
 
 export const metadata = { title: "Dashboard — RIA Lending" };
@@ -66,6 +67,24 @@ export default async function DashboardPage() {
   const dueToday = (dueTodayRes.data ?? []) as unknown as DueRow[];
   const overdue = (overdueRes.data ?? []) as unknown as DueRow[];
 
+  // Approval queue for managers/owners: proposals + approved-awaiting-release
+  const canApprove = isManagerUp(profile.role);
+  const { data: queueData } = canApprove
+    ? await supabase
+        .from("loans")
+        .select("id, loan_number, status, principal_centavos, created_at, borrowers(id, full_name), collector:profiles!loans_collector_id_fkey(full_name)")
+        .in("status", ["pending_approval", "approved"])
+        .order("created_at", { ascending: true })
+    : { data: [] };
+  const queue = (queueData ?? []) as unknown as {
+    id: string;
+    loan_number: string;
+    status: string;
+    principal_centavos: number;
+    borrowers: { id: string; full_name: string };
+    collector: { full_name: string } | null;
+  }[];
+
   // loan_balances is a view — PostgREST can't join it to loans, so filter by id
   const activeIds = (activeLoansRes.data ?? []).map((l) => l.id);
   const balancesRes = activeIds.length
@@ -107,6 +126,49 @@ export default async function DashboardPage() {
           </Link>
         }
       />
+
+      {canApprove && queue.length > 0 && (
+        <section className="mb-6 overflow-hidden rounded-xl border border-amber-300 bg-white shadow-sm">
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3">
+            <h2 className="text-base font-semibold text-amber-900">
+              📋 Loan workflow queue — {queue.length} awaiting action
+            </h2>
+          </div>
+          <table className="w-full text-base">
+            <tbody className="divide-y divide-slate-200">
+              {queue.map((l) => (
+                <tr key={l.id}>
+                  <td className="px-4 py-2.5">
+                    <Link href={`/loans/${l.id}`} className="font-medium text-emerald-700 hover:underline">
+                      {l.loan_number}
+                    </Link>
+                    <span className="ml-2 text-slate-700">{l.borrowers.full_name}</span>
+                    {l.collector?.full_name && (
+                      <span className="ml-2 hidden text-sm text-slate-600 md:inline">
+                        via {l.collector.full_name}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">
+                    {formatPeso(l.principal_centavos)}
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-sm font-medium ${
+                        l.status === "pending_approval"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-sky-100 text-sky-800"
+                      }`}
+                    >
+                      {l.status === "pending_approval" ? "needs approval" : "release cash"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Active loans" value={String(activeIds.length)} />

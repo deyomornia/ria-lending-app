@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireManager, requireStaff } from "@/lib/auth/staff";
+import { isManagerUp } from "@/lib/auth/roles";
 import { computeSchedule } from "@/lib/interest/engine";
 import type { LoanTerms } from "@/lib/interest/types";
 import { auditLog } from "@/lib/audit";
+import { todayInManila } from "@/lib/tz";
 
 export type CreateLoanResult = { ok: true; loanId: string } | { ok: false; error: string };
 
@@ -40,7 +42,11 @@ export async function createLoan(
         ? null
         : terms.ratePerPeriodBps;
 
+  // SOP: collectors submit proposals; managers/owners create pre-approved loans
+  const initialStatus = isManagerUp(profile.role) ? "approved" : "pending_approval";
+
   const { data, error } = await supabase.rpc("create_loan_with_schedule", {
+    p_initial_status: initialStatus,
     p_borrower_id: borrowerId,
     p_interest_method: terms.method,
     p_principal_centavos: terms.principal,
@@ -67,9 +73,14 @@ export async function createLoan(
 
   if (error) return { ok: false, error: error.message };
 
-  if (collectorId) {
-    // collector is descriptive metadata — assigned right after the atomic create
-    await supabase.from("loans").update({ collector_id: collectorId }).eq("id", data as string);
+  const postCreate: Record<string, unknown> = {};
+  if (collectorId) postCreate.collector_id = collectorId;
+  if (initialStatus === "approved") {
+    postCreate.approved_by = profile.id;
+    postCreate.approved_at = new Date().toISOString();
+  }
+  if (Object.keys(postCreate).length > 0) {
+    await supabase.from("loans").update(postCreate).eq("id", data as string);
   }
 
   await auditLog({
@@ -114,6 +125,133 @@ export async function setLoanCollector(
     detail: { collectorId },
   });
   revalidatePath(`/loans/${loanId}`);
+  revalidatePath("/loans");
+  return { ok: true };
+}
+
+export type WorkflowResult = { ok: true } | { ok: false; error: string };
+
+/** Manager+ approves a pending proposal. */
+export async function approveLoan(loanId: string): Promise<WorkflowResult> {
+  const { supabase, profile } = await requireManager();
+
+  const { data, error } = await supabase
+    .from("loans")
+    .update({ approved_by: profile.id, approved_at: new Date().toISOString(), status: "approved" })
+    .eq("id", loanId)
+    .eq("status", "pending_approval")
+    .select("id");
+  if (error) return { ok: false, error: error.message };
+  if (!data?.length) return { ok: false, error: "This loan is no longer pending approval." };
+
+  await auditLog({
+    actorId: profile.id,
+    action: "loan.approve",
+    entity: "loans",
+    entityId: loanId,
+  });
+  revalidatePath(`/loans/${loanId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/loans");
+  return { ok: true };
+}
+
+/** Manager+ rejects a pending proposal with a reason. */
+export async function rejectLoan(loanId: string, reason: string): Promise<WorkflowResult> {
+  const { supabase, profile } = await requireManager();
+  if (!reason.trim()) return { ok: false, error: "A rejection reason is required." };
+
+  const { data, error } = await supabase
+    .from("loans")
+    .update({
+      rejected_by: profile.id,
+      rejected_at: new Date().toISOString(),
+      rejection_reason: reason.trim(),
+      status: "rejected",
+    })
+    .eq("id", loanId)
+    .eq("status", "pending_approval")
+    .select("id");
+  if (error) return { ok: false, error: error.message };
+  if (!data?.length) return { ok: false, error: "This loan is no longer pending approval." };
+
+  await auditLog({
+    actorId: profile.id,
+    action: "loan.reject",
+    entity: "loans",
+    entityId: loanId,
+    detail: { reason: reason.trim() },
+  });
+  revalidatePath(`/loans/${loanId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/loans");
+  return { ok: true };
+}
+
+/**
+ * Records the cash release of an approved loan. The payment schedule is
+ * recomputed anchored to the actual release date (totals are date-independent,
+ * so they stay identical — the release_loan SQL function re-verifies that).
+ */
+export async function releaseLoan(loanId: string): Promise<WorkflowResult> {
+  const { supabase, profile } = await requireStaff();
+
+  const { data: loan } = await supabase.from("loans").select("*").eq("id", loanId).single();
+  if (!loan) return { ok: false, error: "Loan not found." };
+  if (loan.status !== "approved")
+    return { ok: false, error: `Loan is ${loan.status} — only approved loans can be released.` };
+
+  const releaseDate = todayInManila();
+  const base = {
+    principal: loan.principal_centavos,
+    frequency: loan.payment_frequency,
+    termPeriods: loan.term_periods,
+    releaseDate,
+    processingFee: loan.processing_fee_centavos,
+  };
+  const terms: LoanTerms =
+    loan.interest_method === "flat_addon"
+      ? { ...base, method: "flat_addon", ratePerMonthBps: loan.interest_rate_bps }
+      : loan.interest_method === "diminishing"
+        ? { ...base, method: "diminishing", ratePerPeriodBps: loan.interest_rate_bps }
+        : loan.interest_method === "one_time_fixed"
+          ? { ...base, method: "one_time_fixed", fixedInterest: loan.fixed_interest_centavos }
+          : { ...base, method: "per_period_flat", ratePerPeriodBps: loan.interest_rate_bps };
+
+  let result;
+  try {
+    result = computeSchedule(terms);
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+  if (result.totalPayable !== loan.total_payable_centavos) {
+    return { ok: false, error: "Recomputed schedule does not match the approved totals." };
+  }
+
+  const { error } = await supabase.rpc("release_loan", {
+    p_loan_id: loanId,
+    p_released_by: profile.id,
+    p_release_date: releaseDate,
+    p_first_due_date: result.rows[0].dueDate,
+    p_schedule: result.rows.map((r) => ({
+      seq: r.seq,
+      due_date: r.dueDate,
+      principal_due: r.principalDue,
+      interest_due: r.interestDue,
+      total_due: r.totalDue,
+    })),
+  });
+  if (error) return { ok: false, error: error.message };
+
+  await auditLog({
+    actorId: profile.id,
+    action: "loan.release",
+    entity: "loans",
+    entityId: loanId,
+    detail: { releaseDate },
+  });
+  revalidatePath(`/loans/${loanId}`);
+  revalidatePath("/dashboard");
   revalidatePath("/loans");
   return { ok: true };
 }

@@ -20,19 +20,20 @@ const TEST_STAFF_PW = "Smoke-" + Math.random().toString(36).slice(2) + "-9x!";
 const ACCESS_CODE = "424242";
 const UI_TEST_EMAIL = "zz-ui-test@example.com";
 
-let staffUserId, borrowerId, loanId, paymentId;
+let staffUserId, borrowerId, loanId, loan2Id, paymentId;
 
 async function cleanup() {
   try {
-    if (loanId) {
-      const { data: pays } = await admin.from("payments").select("id").eq("loan_id", loanId);
+    for (const lid of [loanId, loan2Id]) {
+      if (!lid) continue;
+      const { data: pays } = await admin.from("payments").select("id").eq("loan_id", lid);
       for (const p of pays ?? []) {
         await admin.from("payment_allocations").delete().eq("payment_id", p.id);
       }
-      await admin.from("payments").delete().eq("loan_id", loanId);
-      await admin.from("penalties").delete().eq("loan_id", loanId);
-      await admin.from("schedule_items").delete().eq("loan_id", loanId);
-      await admin.from("loans").delete().eq("id", loanId);
+      await admin.from("payments").delete().eq("loan_id", lid);
+      await admin.from("penalties").delete().eq("loan_id", lid);
+      await admin.from("schedule_items").delete().eq("loan_id", lid);
+      await admin.from("loans").delete().eq("id", lid);
     }
     if (borrowerId) {
       await admin.from("borrower_access").delete().eq("borrower_id", borrowerId);
@@ -207,6 +208,48 @@ try {
     loansBody.includes(testLoan.loan_number) &&
     loansBody.includes("ZZ TEST Borrower") &&
     loansBody.includes("₱11,000.00"));
+
+  // ---------- D1c. loan approval workflow: propose -> approve -> release ----------
+  const { data: loan2 } = await admin.rpc("create_loan_with_schedule", {
+    p_initial_status: "pending_approval",
+    p_borrower_id: borrowerId, p_interest_method: "one_time_fixed",
+    p_principal_centavos: 500000, p_interest_rate_bps: null,
+    p_fixed_interest_centavos: 50000, p_payment_frequency: "monthly",
+    p_term_periods: 1, p_processing_fee_centavos: 0,
+    p_release_date: "2026-08-04", p_first_due_date: "2026-09-04",
+    p_total_interest_centavos: 50000, p_total_payable_centavos: 550000,
+    p_penalty_rate_bps: 500, p_penalty_grace_days: 3, p_created_by: staffUserId,
+    p_schedule: [{ seq: 1, due_date: "2026-09-04", principal_due: 500000, interest_due: 50000, total_due: 550000 }],
+  });
+  loan2Id = loan2;
+  ok("create pending_approval proposal via RPC", !!loan2Id);
+
+  await page.goto(BASE + "/dashboard");
+  await page.waitForSelector("text=workflow queue", { timeout: 15000 });
+  ok("dashboard shows workflow queue with pending proposal",
+    (await page.textContent("body")).includes("needs approval"));
+
+  await page.goto(`${BASE}/loans/${loan2Id}`);
+  await page.getByRole("button", { name: "Approve" }).click();
+  await page.waitForSelector("text=awaiting cash release", { timeout: 15000 });
+  ok("manager approves proposal via UI", true);
+
+  const releaseBtn = page.getByRole("button", { name: /Release cash/ });
+  await releaseBtn.click();
+  await page.getByRole("button", { name: /Confirm — cash handed over/ }).click();
+  await page.waitForSelector("text=Record payment", { timeout: 20000 });
+  const { data: releasedLoan } = await admin
+    .from("loans")
+    .select("status, release_date, first_due_date, released_by")
+    .eq("id", loan2Id)
+    .single();
+  const todayManila = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" }).format(new Date());
+  ok("release activates loan, stamps releaser, re-anchors schedule to today",
+    releasedLoan.status === "active" &&
+    releasedLoan.release_date === todayManila &&
+    releasedLoan.released_by === staffUserId &&
+    releasedLoan.first_due_date > todayManila,
+    `status=${releasedLoan.status} release=${releasedLoan.release_date} firstDue=${releasedLoan.first_due_date}`);
 
   // ---------- D2. staff account management (Settings, owner-only) ----------
   await page.goto(BASE + "/settings");

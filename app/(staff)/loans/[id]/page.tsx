@@ -7,6 +7,8 @@ import { formatLongDate, todayInManila } from "@/lib/tz";
 import { RecordPaymentForm } from "@/components/staff/RecordPaymentForm";
 import { VoidPaymentButton, WaivePenaltyButton } from "@/components/staff/OwnerActions";
 import { CollectorSelect } from "@/components/staff/CollectorSelect";
+import { LoanWorkflowPanel } from "@/components/staff/LoanWorkflowPanel";
+import { isManagerUp } from "@/lib/auth/roles";
 
 export const metadata = { title: "Loan — RIA Lending" };
 
@@ -80,8 +82,20 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             collectors={collectors ?? []}
             currentCollectorId={loan.collector_id ?? null}
           />
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium capitalize text-slate-700">
-            {loan.status}
+          <span
+            className={`rounded-full px-3 py-1 text-sm font-medium ${
+              loan.status === "active"
+                ? "bg-emerald-100 text-emerald-800"
+                : loan.status === "pending_approval"
+                  ? "bg-amber-100 text-amber-800"
+                  : loan.status === "approved"
+                    ? "bg-sky-100 text-sky-800"
+                    : loan.status === "rejected"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-slate-100 text-slate-700"
+            }`}
+          >
+            {loan.status === "pending_approval" ? "pending approval" : loan.status}
           </span>
           <a
             href={`/api/loans/${loan.id}/agreement`}
@@ -91,6 +105,20 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
           </a>
         </div>
       </div>
+
+      <LoanWorkflowPanel
+        loanId={loan.id}
+        status={loan.status}
+        canApprove={isManagerUp(profile.role)}
+      />
+      {loan.status === "rejected" && (
+        <div className="rounded-xl border border-red-300 bg-red-50 p-4">
+          <p className="text-base font-semibold text-red-800">❌ Proposal rejected</p>
+          {loan.rejection_reason && (
+            <p className="mt-1 text-sm text-red-700">Reason: {loan.rejection_reason}</p>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Principal" value={formatPeso(loan.principal_centavos)} />
