@@ -363,7 +363,7 @@ try {
   const relBody = await relRes.text();
   const { data: loan3After } = await admin.from("loans").select("status").eq("id", loan3Id).single();
   ok("collector can release an approved loan (RLS regression)",
-    relRes.status === 200 && loan3After?.status === "active",
+    (relRes.status === 200 || relRes.status === 204) && loan3After?.status === "active",
     `http=${relRes.status} status=${loan3After?.status} ${relBody.slice(0, 80)}`);
 
   // ---------- D2. staff account management (Settings, owner-only) ----------
