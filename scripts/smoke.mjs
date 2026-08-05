@@ -323,6 +323,9 @@ try {
   await page.waitForSelector("text=Every loan on record", { timeout: 15000 });
   ok("loans table sorts via clickable headers", (await page.textContent("body")).includes("▼"));
 
+  // back to the loan page (the detail/audit/sort checks navigated away)
+  await page.goto(`${BASE}/loans/${loanId}`);
+  await page.waitForSelector("text=Record payment", { timeout: 15000 });
   await page.selectOption("select:below(:text('Method'))", "gcash").catch(() => {});
   const methodSelects = page.locator("select");
   // method select is the one containing a GCash option
