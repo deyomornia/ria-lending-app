@@ -134,7 +134,7 @@ export default async function LoansPage({
         </form>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-base">
           <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
             <tr>

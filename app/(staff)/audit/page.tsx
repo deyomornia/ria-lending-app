@@ -79,7 +79,7 @@ export default async function AuditPage({
         }
       />
 
-      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <ul className="divide-y divide-slate-200">
           {(entries ?? []).map((e) => {
             const link = e.entity_id ? ENTITY_LINK[e.entity]?.(e.entity_id) : undefined;

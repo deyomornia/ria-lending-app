@@ -72,7 +72,7 @@ export function RecordPaymentForm({
   }
 
   return (
-    <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-4">
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
       <h3 className="text-sm font-semibold text-slate-900">Record payment</h3>
       <p className="mt-1 text-sm text-slate-700">
         Outstanding: <span className="font-medium">{formatPeso(outstanding)}</span>. Penalties are

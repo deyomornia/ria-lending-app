@@ -75,7 +75,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      <section className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           <Item label="Receipt no." value={payment.receipt_no ?? "—"} mono />
           <Item label="Amount" value={formatPeso(payment.amount_centavos)} />
@@ -167,7 +167,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         />
       )}
 
-      <section className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-4 py-3">
           <h2 className="text-base font-semibold text-slate-900">History</h2>
         </div>

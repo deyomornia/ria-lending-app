@@ -10,7 +10,7 @@ export default function NewBorrowerPage() {
       <PageHeader title="Add borrower" description="Their mobile number doubles as their portal login." />
       <form
         action={createBorrower}
-        className="space-y-4 rounded-xl border border-slate-300 bg-white shadow-sm p-6"
+        className="space-y-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6"
       >
         <BorrowerFields />
         <button

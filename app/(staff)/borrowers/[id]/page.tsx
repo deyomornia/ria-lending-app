@@ -65,7 +65,7 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Loans</h2>
-          <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <table className="w-full text-base">
               <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
                 <tr>
@@ -120,7 +120,7 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
         <div className="space-y-4">
           <AccessCodePanel borrowerId={borrower.id} hasCode={!!access} />
           {borrower.notes && (
-            <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-4">
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
               <h3 className="text-sm font-semibold text-slate-900">Notes</h3>
               <p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{borrower.notes}</p>
             </div>

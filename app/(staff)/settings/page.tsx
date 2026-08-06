@@ -29,7 +29,7 @@ export default async function SettingsPage() {
       {isOwner && <StaffAccountsManager accounts={accounts} />}
       <form
         action={updateCompanySettings}
-        className="space-y-4 rounded-xl border border-slate-300 bg-white shadow-sm p-6"
+        className="space-y-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6"
       >
         <p className="text-sm text-slate-700">
           Company details shown on the loan agreement PDF.

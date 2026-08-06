@@ -101,7 +101,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             href={`/api/loans/${loan.id}/agreement`}
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            📄 Agreement PDF
+            Agreement PDF
           </a>
         </div>
       </div>
@@ -113,7 +113,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
       />
       {loan.status === "rejected" && (
         <div className="rounded-xl border border-red-300 bg-red-50 p-4">
-          <p className="text-base font-semibold text-red-800">❌ Proposal rejected</p>
+          <p className="text-base font-semibold text-red-800">Proposal rejected</p>
           {loan.rejection_reason && (
             <p className="mt-1 text-sm text-red-700">Reason: {loan.rejection_reason}</p>
           )}
@@ -133,7 +133,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
               Payment schedule
             </h2>
-            <div className="overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm">
+            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
               <table className="w-full text-base">
                 <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
                   <tr>
@@ -191,7 +191,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
                 Penalties
               </h2>
-              <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <table className="w-full text-base">
                   <tbody className="divide-y divide-slate-200">
                     {(penalties ?? []).map((p) => (
@@ -230,7 +230,7 @@ export default async function LoanPage({ params }: { params: Promise<{ id: strin
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
               Payment history
             </h2>
-            <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <table className="w-full text-base">
                 <tbody className="divide-y divide-slate-200">
                   {(payments ?? []).map((p) => (

@@ -36,7 +36,7 @@ export default function LoginPage() {
         </div>
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-xl border border-slate-300 bg-white p-6 shadow-sm"
+          className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
         >
           <div>
             <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700">

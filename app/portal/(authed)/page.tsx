@@ -69,7 +69,7 @@ export default async function PortalHome() {
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
           Upcoming payments
         </h2>
-        <div className="divide-y divide-slate-200 rounded-xl border border-slate-300 bg-white">
+        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
           {upcoming.map((s) => (
             <div key={s.id} className="flex items-center justify-between px-4 py-3">
               <div>
@@ -95,7 +95,7 @@ export default async function PortalHome() {
         </h2>
         <div className="space-y-3">
           {data.loans.map((l) => (
-            <div key={l.id} className="rounded-xl border border-slate-300 bg-white p-4">
+            <div key={l.id} className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between">
                 <p className="font-medium text-slate-900">{l.loan_number}</p>
                 <span
@@ -131,7 +131,7 @@ export default async function PortalHome() {
             </div>
           ))}
           {data.loans.length === 0 && (
-            <p className="rounded-xl border border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-600">
+            <p className="rounded-xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600">
               No loans on record.
             </p>
           )}
@@ -142,7 +142,7 @@ export default async function PortalHome() {
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
           Recent payments
         </h2>
-        <div className="divide-y divide-slate-200 rounded-xl border border-slate-300 bg-white">
+        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
           {data.payments.map((p) => (
             <div key={p.id} className="flex items-center justify-between px-4 py-2.5">
               <div>

@@ -45,7 +45,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
         <main className="p-4 sm:p-8">
           {hasTempPassword && (
             <div className="mx-auto mb-6 max-w-5xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
-              🔑 You are still using a temporary password.{" "}
+              You are still using a temporary password.{" "}
               <a href="/account/password" className="font-semibold underline">
                 Set your own password now
               </a>{" "}

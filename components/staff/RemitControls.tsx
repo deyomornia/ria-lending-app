@@ -33,7 +33,7 @@ export function RemitForm({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <h3 className="text-base font-semibold text-slate-900">Submit remittance</h3>
       <p className="mt-1 text-sm text-slate-600">
         Record the cash being turned over to the office for {remitDate}. A Manager or Owner

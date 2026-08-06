@@ -30,7 +30,7 @@ export function LoanWorkflowPanel({
   if (status === "pending_approval") {
     return (
       <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-        <p className="text-base font-semibold text-amber-900">⏳ Awaiting approval</p>
+        <p className="text-base font-semibold text-amber-900">Awaiting approval</p>
         <p className="mt-1 text-sm text-amber-800">
           This loan proposal needs a Manager or Owner&apos;s decision before cash can be released.
         </p>
@@ -64,7 +64,7 @@ export function LoanWorkflowPanel({
   if (status === "approved") {
     return (
       <div className="rounded-xl border border-sky-300 bg-sky-50 p-4">
-        <p className="text-base font-semibold text-sky-900">✅ Approved — awaiting cash release</p>
+        <p className="text-base font-semibold text-sky-900">Approved — awaiting cash release</p>
         <p className="mt-1 text-sm text-sky-800">
           Recording the release hands the cash to the borrower and re-anchors the payment schedule
           to today&apos;s date.
@@ -81,7 +81,7 @@ export function LoanWorkflowPanel({
           }}
           className="mt-3 rounded-md bg-sky-700 px-4 py-2 text-base font-semibold text-white hover:bg-sky-800 disabled:opacity-50"
         >
-          {pending ? "Releasing…" : confirmRelease ? "Confirm — cash handed over?" : "💵 Release cash"}
+          {pending ? "Releasing…" : confirmRelease ? "Confirm — cash handed over?" : "Release cash"}
         </button>
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       </div>

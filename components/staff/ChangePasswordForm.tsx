@@ -63,7 +63,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-300 bg-white p-6 shadow-sm">
+    <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div>
         <label className={labelCls}>Current password</label>
         <input

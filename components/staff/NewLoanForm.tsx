@@ -58,7 +58,7 @@ export function NewLoanForm({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 rounded-xl border border-slate-300 bg-white shadow-sm p-6 sm:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6 sm:grid-cols-2">
         <div>
           <label className={labelCls}>Borrower *</label>
           <select
@@ -91,7 +91,7 @@ export function NewLoanForm({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-6">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
           Loan terms
         </h2>
@@ -103,7 +103,7 @@ export function NewLoanForm({
         />
       </div>
 
-      <div className="rounded-xl border border-slate-300 bg-white shadow-sm p-6">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
           Late-payment penalty
         </h2>
