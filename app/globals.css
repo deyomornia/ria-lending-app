@@ -37,3 +37,45 @@ body {
   outline: 3px solid #047857; /* emerald-700 */
   outline-offset: 2px;
 }
+
+/*
+ * Motion is transform-only (never width/height/top/left), so a growing bar
+ * costs no layout pass. Final geometry is set inline from the computed rates —
+ * the animation only scales toward a value that is already correct, so a
+ * reader with motion disabled sees the identical end state.
+ */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-grow-x {
+  transform-origin: left center;
+  animation: grow-x 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-rise-in {
+  animation: rise-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-grow-x,
+  .animate-rise-in {
+    animation: none;
+  }
+}
