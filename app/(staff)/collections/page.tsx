@@ -59,11 +59,11 @@ export default async function CollectionsPage({
         action={
           <form className="flex flex-wrap items-end gap-2">
           <div>
-            <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">Collector</label>
+            <label className="mb-1 block text-sm uppercase tracking-wide text-base-content/70">Collector</label>
             <select
               name="collector"
               defaultValue={collector}
-              className="rounded-md border border-slate-300 px-3 py-2 text-base"
+              className="rounded-md border border-base-300 px-3 py-2 text-base"
             >
               <option value="">All collectors</option>
               {(collectors ?? []).map((c) => (
@@ -74,24 +74,24 @@ export default async function CollectionsPage({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">From</label>
+            <label className="mb-1 block text-sm uppercase tracking-wide text-base-content/70">From</label>
             <input
               type="date"
               name="from"
               defaultValue={from}
-              className="rounded-md border border-slate-300 px-3 py-2 text-base"
+              className="rounded-md border border-base-300 px-3 py-2 text-base"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">To</label>
+            <label className="mb-1 block text-sm uppercase tracking-wide text-base-content/70">To</label>
             <input
               type="date"
               name="to"
               defaultValue={to}
-              className="rounded-md border border-slate-300 px-3 py-2 text-base"
+              className="rounded-md border border-base-300 px-3 py-2 text-base"
             />
           </div>
-            <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
+            <button className="rounded-md bg-neutral px-3 py-2 text-base font-medium text-neutral-content">
               Filter
             </button>
           </form>
@@ -104,17 +104,17 @@ export default async function CollectionsPage({
             .map(([name, amt]) => (
               <span
                 key={name}
-                className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm"
+                className="rounded-full border border-base-300 bg-white px-3 py-1.5 text-sm text-base-content/70 shadow-sm"
               >
-                {name}: <span className="font-semibold tabular-nums text-slate-900">{formatPeso(amt)}</span>
+                {name}: <span className="font-semibold tabular-nums text-base-content">{formatPeso(amt)}</span>
               </span>
             ))}
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-base-300 bg-white shadow-sm">
         <table className="w-full text-base">
-          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+          <thead className="bg-base-200 text-left text-sm uppercase tracking-wide text-base-content/70">
             <tr>
               <SortHeader label="Receipt #" col="receipt" {...sortProps} />
               <SortHeader label="Date" col="date" {...sortProps} />
@@ -126,11 +126,11 @@ export default async function CollectionsPage({
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-base-300">
             {sorted.map((p) => (
               <tr key={p.id} className={p.voided_at ? "opacity-50" : ""}>
                 <td className="px-4 py-2 font-mono">
-                  <Link href={`/payments/${p.id}`} className="text-emerald-700 hover:underline">
+                  <Link href={`/payments/${p.id}`} className="text-primary hover:underline">
                     {p.receipt_no ?? "view"}
                   </Link>
                 </td>
@@ -138,26 +138,26 @@ export default async function CollectionsPage({
                 <td className="px-4 py-2">
                   <Link
                     href={`/borrowers/${p.loans.borrowers.id}`}
-                    className="font-medium text-emerald-700"
+                    className="font-medium text-primary"
                   >
                     {p.loans.borrowers.full_name}
                   </Link>
-                  <Link href={`/loans/${p.loans.id}`} className="ml-2 text-sm text-emerald-700">
+                  <Link href={`/loans/${p.loans.id}`} className="ml-2 text-sm text-primary">
                     {p.loans.loan_number}
                   </Link>
                 </td>
                 <td className="px-4 py-2 text-right tabular-nums">
                   {formatPeso(p.amount_centavos)}
-                  {p.voided_at && <span className="ml-1 text-sm text-red-500">VOID</span>}
+                  {p.voided_at && <span className="ml-1 text-sm text-error">VOID</span>}
                 </td>
-                <td className="px-4 py-2 text-sm text-slate-700">
+                <td className="px-4 py-2 text-sm text-base-content/70">
                   {p.method}
                   {p.reference_no ? ` · ${p.reference_no}` : ""}
                 </td>
-                <td className="px-4 py-2 text-sm text-slate-700">
+                <td className="px-4 py-2 text-sm text-base-content/70">
                   {p.collector?.full_name ?? "—"}
                 </td>
-                <td className="px-4 py-2 text-sm text-slate-700">{p.profiles?.full_name}</td>
+                <td className="px-4 py-2 text-sm text-base-content/70">{p.profiles?.full_name}</td>
                 <td className="px-4 py-2 text-right">
                   {isOwnerUp(profile.role) && !p.voided_at && (
                     <VoidPaymentButton paymentId={p.id} />
@@ -167,7 +167,7 @@ export default async function CollectionsPage({
             ))}
             {(payments ?? []).length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-600">
+                <td colSpan={8} className="px-4 py-8 text-center text-base-content/70">
                   No payments in this period.
                 </td>
               </tr>

@@ -6,8 +6,8 @@ import { updatePaymentDetails } from "@/lib/actions/payments";
 import { todayInManila } from "@/lib/tz";
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+  "w-full rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-base-content/70";
 
 export function PaymentEditForm({
   paymentId,
@@ -39,7 +39,7 @@ export function PaymentEditForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md border border-slate-300 bg-white px-4 py-2 text-base font-medium text-slate-700 hover:bg-slate-50"
+        className="rounded-md border border-base-300 bg-white px-4 py-2 text-base font-medium text-base-content/70 hover:bg-base-200"
       >
         Edit details
       </button>
@@ -47,14 +47,14 @@ export function PaymentEditForm({
   }
 
   return (
-    <div className="rounded-xl border border-emerald-300 bg-emerald-50/40 p-4">
+    <div className="rounded-xl border border-primary/40 bg-primary/5 p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-slate-900">Edit payment details</h3>
-        <button onClick={() => setOpen(false)} className="text-sm text-slate-600 underline">
+        <h3 className="text-base font-semibold text-base-content">Edit payment details</h3>
+        <button onClick={() => setOpen(false)} className="text-sm text-base-content/70 underline">
           Cancel
         </button>
       </div>
-      <p className="mt-1 text-sm text-slate-600">
+      <p className="mt-1 text-sm text-base-content/70">
         The amount cannot be edited — to fix a wrong amount, void this payment and record it again.
         Every edit is written to the audit trail.
       </p>
@@ -111,8 +111,8 @@ export function PaymentEditForm({
           <input className={inputCls} value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      {success && <p className="mt-2 text-sm text-emerald-700">Saved ✓</p>}
+      {error && <p className="mt-2 text-sm text-error">{error}</p>}
+      {success && <p className="mt-2 text-sm text-primary">Saved ✓</p>}
       <button
         disabled={pending}
         onClick={() => {
@@ -135,7 +135,7 @@ export function PaymentEditForm({
             }
           });
         }}
-        className="mt-3 rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+        className="mt-3 rounded-md bg-primary px-4 py-2.5 text-base font-semibold text-primary-content hover:bg-secondary disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save changes"}
       </button>

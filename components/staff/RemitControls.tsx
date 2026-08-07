@@ -6,8 +6,8 @@ import { confirmRemittance, submitRemittance } from "@/lib/actions/remittances";
 import { formatPeso } from "@/lib/interest/money";
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+  "w-full rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-base-content/70";
 
 export function RemitForm({
   selfId,
@@ -33,9 +33,9 @@ export function RemitForm({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900">Submit remittance</h3>
-      <p className="mt-1 text-sm text-slate-600">
+    <div className="rounded-xl border border-base-300 bg-white p-4 shadow-sm">
+      <h3 className="text-base font-semibold text-base-content">Submit remittance</h3>
+      <p className="mt-1 text-sm text-base-content/70">
         Record the cash being turned over to the office for {remitDate}. A Manager or Owner
         confirms it upon receiving the money.
       </p>
@@ -67,7 +67,7 @@ export function RemitForm({
             onChange={(e) => setAmount(e.target.value)}
           />
           {suggestedAmount > 0 && (
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-base-content/70">
               Unremitted collections for this day: {formatPeso(suggestedAmount)}
             </p>
           )}
@@ -76,8 +76,8 @@ export function RemitForm({
           <label className={labelCls}>Note (optional)</label>
           <input className={inputCls} value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {success && <p className="text-sm text-emerald-700">Remittance submitted ✓</p>}
+        {error && <p className="text-sm text-error">{error}</p>}
+        {success && <p className="text-sm text-primary">Remittance submitted ✓</p>}
         <button
           disabled={pending}
           onClick={() => {
@@ -102,7 +102,7 @@ export function RemitForm({
               }
             });
           }}
-          className="w-full rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="w-full rounded-md bg-primary px-4 py-2.5 text-base font-semibold text-primary-content hover:bg-secondary disabled:opacity-50"
         >
           {pending ? "Submitting…" : "Submit remittance"}
         </button>
@@ -131,7 +131,7 @@ export function ConfirmRemitButton({ remittanceId }: { remittanceId: string }) {
           router.refresh();
         });
       }}
-      className="rounded-md bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+      className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-content hover:bg-secondary disabled:opacity-50"
     >
       {pending ? "Confirming…" : confirming ? "Cash received?" : "Confirm receipt"}
     </button>

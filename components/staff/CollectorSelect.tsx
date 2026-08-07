@@ -18,10 +18,10 @@ export function CollectorSelect({
   const [pending, startTransition] = useTransition();
 
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-700">
+    <label className="flex items-center gap-2 text-sm text-base-content/70">
       <span className="font-medium uppercase tracking-wide">Collector</span>
       <select
-        className="rounded-md border border-slate-300 px-2 py-1.5 text-base shadow-sm disabled:opacity-60"
+        className="rounded-md border border-base-300 px-2 py-1.5 text-base shadow-sm disabled:opacity-60"
         value={value}
         disabled={pending}
         onChange={(e) => {

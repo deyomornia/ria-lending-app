@@ -15,15 +15,15 @@ const STATUS_TABS = [
 ] as const;
 
 const STATUS_BADGE: Record<string, string> = {
-  pending_approval: "bg-amber-100 text-amber-800",
-  approved: "bg-sky-100 text-sky-800",
-  rejected: "bg-red-100 text-red-700",
-  active: "bg-emerald-100 text-emerald-800",
-  paid: "bg-slate-100 text-slate-600",
-  defaulted: "bg-red-100 text-red-700",
-  cancelled: "bg-slate-100 text-slate-500",
-  restructured: "bg-amber-100 text-amber-800",
-  draft: "bg-slate-100 text-slate-500",
+  pending_approval: "bg-warning/20 text-warning",
+  approved: "bg-info/20 text-info",
+  rejected: "bg-error/20 text-error",
+  active: "bg-primary/10 text-primary",
+  paid: "bg-base-200 text-base-content/70",
+  defaulted: "bg-error/20 text-error",
+  cancelled: "bg-base-200 text-base-content/60",
+  restructured: "bg-warning/20 text-warning",
+  draft: "bg-base-200 text-base-content/60",
 };
 
 type LoanRow = {
@@ -96,7 +96,7 @@ export default async function LoansPage({
         action={
           <Link
             href="/loans/new"
-            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
+            className="rounded-lg bg-primary px-4 py-2.5 text-base font-semibold text-primary-content shadow-sm hover:bg-secondary"
           >
             + New loan
           </Link>
@@ -104,15 +104,15 @@ export default async function LoansPage({
       />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-1 rounded-lg bg-slate-200 p-1">
+        <div className="flex gap-1 rounded-lg bg-base-300 p-1">
           {STATUS_TABS.map((t) => (
             <Link
               key={t.key}
               href={`/loans?status=${t.key}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
               className={`rounded-md px-3 py-1.5 text-sm font-medium ${
                 status === t.key
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-base-content shadow-sm"
+                  : "text-base-content/70 hover:text-base-content"
               }`}
             >
               {t.label}
@@ -126,17 +126,17 @@ export default async function LoansPage({
             name="q"
             defaultValue={q}
             placeholder="Search loan # or borrower…"
-            className="w-64 rounded-md border border-slate-300 px-3 py-2 text-base shadow-sm"
+            className="w-64 rounded-md border border-base-300 px-3 py-2 text-base shadow-sm"
           />
-          <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
+          <button className="rounded-md bg-neutral px-3 py-2 text-base font-medium text-neutral-content">
             Search
           </button>
         </form>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-base-300 bg-white shadow-sm">
         <table className="w-full text-base">
-          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+          <thead className="bg-base-200 text-left text-sm uppercase tracking-wide text-base-content/70">
             <tr>
               <SortHeader label="Loan #" col="loan_number" {...sortProps} />
               <SortHeader label="Borrower" col="borrower" {...sortProps} />
@@ -146,16 +146,16 @@ export default async function LoansPage({
               <SortHeader label="Outstanding" col="outstanding" align="right" {...sortProps} />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-base-300">
             {loans.map((l) => (
-              <tr key={l.id} className="hover:bg-slate-50">
+              <tr key={l.id} className="hover:bg-base-200">
                 <td className="px-4 py-2.5">
-                  <Link href={`/loans/${l.id}`} className="font-medium text-emerald-700 hover:underline">
+                  <Link href={`/loans/${l.id}`} className="font-medium text-primary hover:underline">
                     {l.loan_number}
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/borrowers/${l.borrowers.id}`} className="text-slate-900 hover:underline">
+                  <Link href={`/borrowers/${l.borrowers.id}`} className="text-base-content hover:underline">
                     {l.borrowers.full_name}
                   </Link>
                 </td>
@@ -166,8 +166,8 @@ export default async function LoansPage({
                     {l.status === "pending_approval" ? "pending" : l.status}
                   </span>
                 </td>
-                <td className="hidden px-4 py-2.5 text-slate-700 md:table-cell">
-                  {l.collector?.full_name ?? <span className="text-slate-400">—</span>}
+                <td className="hidden px-4 py-2.5 text-base-content/70 md:table-cell">
+                  {l.collector?.full_name ?? <span className="text-base-content/50">—</span>}
                 </td>
                 <td className="px-4 py-2.5 text-right tabular-nums">
                   {formatPeso(l.principal_centavos)}
@@ -179,7 +179,7 @@ export default async function LoansPage({
             ))}
             {loans.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-600">
+                <td colSpan={6} className="px-4 py-8 text-center text-base-content/70">
                   {needle ? "No loans match your search." : "No loans in this category yet."}
                 </td>
               </tr>

@@ -7,8 +7,8 @@ import { listStaffAccounts } from "@/lib/actions/staff";
 
 export const metadata = { title: "Settings — RIA Lending" };
 
-const inputCls = "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+const inputCls = "w-full rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-base-content/70";
 
 export default async function SettingsPage() {
   const { supabase, profile } = await requireStaff();
@@ -29,9 +29,9 @@ export default async function SettingsPage() {
       {isOwner && <StaffAccountsManager accounts={accounts} />}
       <form
         action={updateCompanySettings}
-        className="space-y-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6"
+        className="space-y-4 rounded-xl border border-base-300 bg-white shadow-sm p-6"
       >
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-base-content/70">
           Company details shown on the loan agreement PDF.
           {!isOwner && " Only the owner can edit these."}
         </p>
@@ -78,7 +78,7 @@ export default async function SettingsPage() {
           />
         </div>
         {isOwner && (
-          <button className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800">
+          <button className="rounded-md bg-primary px-4 py-2.5 text-base font-semibold text-primary-content hover:bg-secondary">
             Save settings
           </button>
         )}

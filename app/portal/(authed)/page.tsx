@@ -31,27 +31,27 @@ export default async function PortalHome() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Hello, {data.borrower.full_name}!</h1>
-        <p className="text-sm text-slate-700">{formatLongDate(today)}</p>
+        <h1 className="text-xl font-bold text-base-content">Hello, {data.borrower.full_name}!</h1>
+        <p className="text-sm text-base-content/70">{formatLongDate(today)}</p>
       </div>
 
-      <div className="rounded-2xl bg-slate-900 p-6 text-white">
-        <p className="text-sm uppercase tracking-wide text-slate-300">Total outstanding balance</p>
+      <div className="rounded-2xl bg-neutral p-6 text-neutral-content">
+        <p className="text-sm uppercase tracking-wide text-base-content/40">Total outstanding balance</p>
         <p className="mt-1 text-3xl font-bold tabular-nums">{formatPeso(totalOutstanding)}</p>
-        <p className="mt-1 text-sm text-slate-300">
+        <p className="mt-1 text-sm text-base-content/40">
           {activeLoans.length} active loan{activeLoans.length === 1 ? "" : "s"}
         </p>
       </div>
 
       {overdue.length > 0 && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <h2 className="text-sm font-semibold text-red-800">⚠️ Overdue payments</h2>
+        <div className="rounded-xl border border-error/30 bg-error/10 p-4">
+          <h2 className="text-sm font-semibold text-error">⚠️ Overdue payments</h2>
           <ul className="mt-2 space-y-1">
             {overdue.map((s) => (
-              <li key={s.id} className="flex justify-between text-sm text-red-700">
+              <li key={s.id} className="flex justify-between text-sm text-error">
                 <span>
                   {formatLongDate(s.due_date)}
-                  <span className="ml-1 text-sm text-red-600">{loanNumber.get(s.loan_id)}</span>
+                  <span className="ml-1 text-sm text-error">{loanNumber.get(s.loan_id)}</span>
                 </span>
                 <span className="font-medium tabular-nums">
                   {formatPeso(s.total_due_centavos - s.paid_centavos)}
@@ -59,30 +59,30 @@ export default async function PortalHome() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-sm text-red-600">
+          <p className="mt-2 text-sm text-error">
             Please settle overdue payments to avoid additional penalties.
           </p>
         </div>
       )}
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70">
           Upcoming payments
         </h2>
-        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+        <div className="divide-y divide-base-300 rounded-xl border border-base-300 bg-white">
           {upcoming.map((s) => (
             <div key={s.id} className="flex items-center justify-between px-4 py-3">
               <div>
-                <p className="text-sm font-medium text-slate-900">{formatLongDate(s.due_date)}</p>
-                <p className="text-sm text-slate-600">{loanNumber.get(s.loan_id)}</p>
+                <p className="text-sm font-medium text-base-content">{formatLongDate(s.due_date)}</p>
+                <p className="text-sm text-base-content/70">{loanNumber.get(s.loan_id)}</p>
               </div>
-              <p className="text-sm font-semibold tabular-nums text-slate-900">
+              <p className="text-sm font-semibold tabular-nums text-base-content">
                 {formatPeso(s.total_due_centavos - s.paid_centavos)}
               </p>
             </div>
           ))}
           {upcoming.length === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-slate-600">
+            <p className="px-4 py-6 text-center text-sm text-base-content/70">
               No upcoming payments. {activeLoans.length === 0 ? "You're all settled! 🎉" : ""}
             </p>
           )}
@@ -90,19 +90,19 @@ export default async function PortalHome() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70">
           My loans
         </h2>
         <div className="space-y-3">
           {data.loans.map((l) => (
-            <div key={l.id} className="rounded-xl border border-slate-200 bg-white p-4">
+            <div key={l.id} className="rounded-xl border border-base-300 bg-white p-4">
               <div className="flex items-center justify-between">
-                <p className="font-medium text-slate-900">{l.loan_number}</p>
+                <p className="font-medium text-base-content">{l.loan_number}</p>
                 <span
                   className={`rounded-full px-2 py-0.5 text-sm font-medium ${
                     l.status === "active"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-slate-100 text-slate-700"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-base-200 text-base-content/70"
                   }`}
                 >
                   {l.status === "active" ? "Active" : "Fully paid"}
@@ -110,20 +110,20 @@ export default async function PortalHome() {
               </div>
               <div className="mt-2 grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-sm text-slate-600">Loan amount</p>
+                  <p className="text-sm text-base-content/70">Loan amount</p>
                   <p className="text-sm font-semibold tabular-nums">
                     {formatPeso(l.principal_centavos)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600">Total payable</p>
+                  <p className="text-sm text-base-content/70">Total payable</p>
                   <p className="text-sm font-semibold tabular-nums">
                     {formatPeso(l.total_payable_centavos)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600">Balance</p>
-                  <p className="text-sm font-semibold tabular-nums text-emerald-700">
+                  <p className="text-sm text-base-content/70">Balance</p>
+                  <p className="text-sm font-semibold tabular-nums text-primary">
                     {formatPeso(data.balances.get(l.id) ?? 0)}
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export default async function PortalHome() {
             </div>
           ))}
           {data.loans.length === 0 && (
-            <p className="rounded-xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600">
+            <p className="rounded-xl border border-base-300 bg-white px-4 py-6 text-center text-sm text-base-content/70">
               No loans on record.
             </p>
           )}
@@ -139,25 +139,25 @@ export default async function PortalHome() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70">
           Recent payments
         </h2>
-        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+        <div className="divide-y divide-base-300 rounded-xl border border-base-300 bg-white">
           {data.payments.map((p) => (
             <div key={p.id} className="flex items-center justify-between px-4 py-2.5">
               <div>
-                <p className="text-sm text-slate-700">{formatLongDate(p.payment_date)}</p>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-base-content/70">{formatLongDate(p.payment_date)}</p>
+                <p className="text-sm text-base-content/70">
                   {loanNumber.get(p.loan_id)} · {p.method}
                 </p>
               </div>
-              <p className="text-sm font-medium tabular-nums text-slate-900">
+              <p className="text-sm font-medium tabular-nums text-base-content">
                 {formatPeso(p.amount_centavos)}
               </p>
             </div>
           ))}
           {data.payments.length === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-slate-600">No payments yet.</p>
+            <p className="px-4 py-6 text-center text-sm text-base-content/70">No payments yet.</p>
           )}
         </div>
       </section>

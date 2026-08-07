@@ -1,6 +1,6 @@
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+  "w-full rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-base-content/70";
 
 export function BorrowerFields({
   defaults,

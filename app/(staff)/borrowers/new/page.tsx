@@ -10,12 +10,12 @@ export default function NewBorrowerPage() {
       <PageHeader title="Add borrower" description="Their mobile number doubles as their portal login." />
       <form
         action={createBorrower}
-        className="space-y-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6"
+        className="space-y-4 rounded-xl border border-base-300 bg-white shadow-sm p-6"
       >
         <BorrowerFields />
         <button
           type="submit"
-          className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800"
+          className="rounded-md bg-primary px-4 py-2.5 text-base font-semibold text-primary-content hover:bg-secondary"
         >
           Save borrower
         </button>

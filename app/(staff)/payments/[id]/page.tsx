@@ -57,7 +57,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         action={
           <div className="flex items-center gap-3">
             {payment.voided_at ? (
-              <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
+              <span className="rounded-full bg-error/20 px-3 py-1 text-sm font-semibold text-error">
                 VOIDED
               </span>
             ) : (
@@ -68,21 +68,21 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
       />
 
       {payment.voided_at && (
-        <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+        <div className="rounded-xl border border-error/40 bg-error/10 p-4 text-sm text-error">
           Voided by {payment.voider?.full_name ?? "—"} on{" "}
           {new Date(payment.voided_at).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
           {payment.void_reason && <> — “{payment.void_reason}”</>}
         </div>
       )}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-base-300 bg-white p-5 shadow-sm">
         <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           <Item label="Receipt no." value={payment.receipt_no ?? "—"} mono />
           <Item label="Amount" value={formatPeso(payment.amount_centavos)} />
           <Item
             label="Loan"
             value={
-              <Link href={`/loans/${payment.loans.id}`} className="text-emerald-700 hover:underline">
+              <Link href={`/loans/${payment.loans.id}`} className="text-primary hover:underline">
                 {payment.loans.loan_number}
               </Link>
             }
@@ -92,7 +92,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
             value={
               <Link
                 href={`/borrowers/${payment.loans.borrowers.id}`}
-                className="text-emerald-700 hover:underline"
+                className="text-primary hover:underline"
               >
                 {payment.loans.borrowers.full_name}
               </Link>
@@ -113,25 +113,25 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         </dl>
 
         {payment.signature_data && (
-          <div className="mt-4 border-t border-slate-200 pt-4">
-            <p className="mb-1 text-sm font-medium uppercase tracking-wide text-slate-700">
+          <div className="mt-4 border-t border-base-300 pt-4">
+            <p className="mb-1 text-sm font-medium uppercase tracking-wide text-base-content/70">
               Payor&apos;s signature
             </p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={payment.signature_data}
               alt="Payor's signature"
-              className="h-28 rounded-md border border-slate-200 bg-white"
+              className="h-28 rounded-md border border-base-300 bg-white"
             />
           </div>
         )}
 
         {(allocations ?? []).length > 0 && (
-          <div className="mt-4 border-t border-slate-200 pt-4">
-            <p className="mb-2 text-sm font-medium uppercase tracking-wide text-slate-700">
+          <div className="mt-4 border-t border-base-300 pt-4">
+            <p className="mb-2 text-sm font-medium uppercase tracking-wide text-base-content/70">
               Applied to
             </p>
-            <ul className="space-y-1 text-base text-slate-700">
+            <ul className="space-y-1 text-base text-base-content/70">
               {(
                 (allocations ?? []) as unknown as {
                   amount_centavos: number;
@@ -167,34 +167,34 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         />
       )}
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="text-base font-semibold text-slate-900">History</h2>
+      <section className="overflow-hidden rounded-xl border border-base-300 bg-white shadow-sm">
+        <div className="border-b border-base-300 px-4 py-3">
+          <h2 className="text-base font-semibold text-base-content">History</h2>
         </div>
-        <ul className="divide-y divide-slate-200">
+        <ul className="divide-y divide-base-300">
           {(history ?? []).map((h) => (
             <li key={h.id} className="px-4 py-3">
-              <p className="text-base text-slate-900">
+              <p className="text-base text-base-content">
                 <span className="font-medium">{actorName.get(h.actor_id) ?? h.actor_type}</span>{" "}
                 — {describeAction(h.action)}
-                <span className="ml-2 text-sm text-slate-500">
+                <span className="ml-2 text-sm text-base-content/60">
                   {new Date(h.created_at).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
                 </span>
               </p>
               {h.action === "payment.edit" && h.detail?.before && h.detail?.after && (
-                <ul className="mt-1 space-y-0.5 text-sm text-slate-600">
+                <ul className="mt-1 space-y-0.5 text-sm text-base-content/70">
                   {diffLines(h.detail.before, h.detail.after).map((line, i) => (
                     <li key={i}>{line}</li>
                   ))}
                 </ul>
               )}
               {h.action === "payment.void" && h.detail?.reason && (
-                <p className="mt-1 text-sm text-slate-600">Reason: {h.detail.reason}</p>
+                <p className="mt-1 text-sm text-base-content/70">Reason: {h.detail.reason}</p>
               )}
             </li>
           ))}
           {(history ?? []).length === 0 && (
-            <li className="px-4 py-6 text-center text-base text-slate-600">
+            <li className="px-4 py-6 text-center text-base text-base-content/70">
               No recorded history for this payment.
             </li>
           )}
@@ -215,8 +215,8 @@ function Item({
 }) {
   return (
     <div>
-      <dt className="text-sm font-medium uppercase tracking-wide text-slate-700">{label}</dt>
-      <dd className={`mt-0.5 text-base text-slate-900 ${mono ? "font-mono font-semibold" : ""}`}>
+      <dt className="text-sm font-medium uppercase tracking-wide text-base-content/70">{label}</dt>
+      <dd className={`mt-0.5 text-base text-base-content ${mono ? "font-mono font-semibold" : ""}`}>
         {value}
       </dd>
     </div>

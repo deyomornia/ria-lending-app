@@ -101,7 +101,7 @@ export function AgingBar({
   ].filter((s) => s.value > 0);
 
   if (total <= 0) {
-    return <p className="text-base text-slate-600">No outstanding balance — all loans settled.</p>;
+    return <p className="text-base text-base-content/70">No outstanding balance — all loans settled.</p>;
   }
 
   return (
@@ -118,14 +118,14 @@ export function AgingBar({
       </div>
       <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1">
         {segments.map((s) => (
-          <span key={s.label} className="flex items-center gap-2 text-base text-slate-700">
+          <span key={s.label} className="flex items-center gap-2 text-base text-base-content/70">
             <span
               className="inline-block h-3 w-3 rounded-sm"
               style={{ backgroundColor: s.color }}
               aria-hidden
             />
             {s.label}:&nbsp;
-            <span className="font-semibold tabular-nums text-slate-900">{formatPeso(s.value)}</span>
+            <span className="font-semibold tabular-nums text-base-content">{formatPeso(s.value)}</span>
           </span>
         ))}
       </div>
@@ -176,7 +176,7 @@ export function ProgressRing({
           {label}
         </text>
       </svg>
-      {sublabel && <p className="mt-1 text-center text-sm text-slate-600">{sublabel}</p>}
+      {sublabel && <p className="mt-1 text-center text-sm text-base-content/70">{sublabel}</p>}
     </div>
   );
 }
@@ -233,7 +233,7 @@ export function MoneyFlowTrend({
           );
         })}
       </svg>
-      <div className="mt-1 flex gap-5 text-sm text-slate-700">
+      <div className="mt-1 flex gap-5 text-sm text-base-content/70">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded-sm" style={{ backgroundColor: "#94a3b8" }} aria-hidden />
           Released
