@@ -20,10 +20,14 @@ const METHOD_LABELS: Record<InterestMethod, string> = {
 };
 
 const METHOD_HELP: Record<InterestMethod, string> = {
-  flat_addon: "Interest = principal × monthly rate × months. The common “5-6” style.",
-  diminishing: "Bank-style amortization — interest charged only on the remaining balance.",
-  one_time_fixed: "One agreed interest amount, e.g. borrow ₱10,000 and repay ₱12,000.",
-  per_period_flat: "Each payment carries interest = principal × rate. Daily/weekly hulugan.",
+  flat_addon:
+    "Interest = principal × monthly rate × months. The common “5-6” style.",
+  diminishing:
+    "Bank-style amortization — interest charged only on the remaining balance.",
+  one_time_fixed:
+    "One agreed interest amount, e.g. borrow ₱10,000 and repay ₱12,000.",
+  per_period_flat:
+    "Each payment carries interest = principal × rate. Daily/weekly hulugan.",
 };
 
 const FREQUENCY_LABELS: Record<PaymentFrequency, string> = {
@@ -86,14 +90,15 @@ export function stateToTerms(s: CalculatorState): LoanTerms | null {
 
   const bps = Math.round(parseFloat(s.ratePct) * 100);
   if (!Number.isFinite(bps) || bps < 0) return null;
-  if (s.method === "flat_addon") return { ...base, method: "flat_addon", ratePerMonthBps: bps };
-  if (s.method === "diminishing") return { ...base, method: "diminishing", ratePerPeriodBps: bps };
+  if (s.method === "flat_addon")
+    return { ...base, method: "flat_addon", ratePerMonthBps: bps };
+  if (s.method === "diminishing")
+    return { ...base, method: "diminishing", ratePerPeriodBps: bps };
   return { ...base, method: "per_period_flat", ratePerPeriodBps: bps };
 }
 
-const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "block text-sm font-medium uppercase tracking-wide text-slate-700 mb-1";
+const inputCls = "field-input";
+const labelCls = "field-label";
 
 export function CalculatorForm({
   initial,
@@ -105,7 +110,10 @@ export function CalculatorForm({
   onResult?: (terms: LoanTerms | null, result: ScheduleResult | null) => void;
   showSchedule?: boolean;
 }) {
-  const [s, setS] = useState<CalculatorState>({ ...defaultCalculatorState(), ...initial });
+  const [s, setS] = useState<CalculatorState>({
+    ...defaultCalculatorState(),
+    ...initial,
+  });
 
   const { terms, result, error } = useMemo(() => {
     const terms = stateToTerms(s);
@@ -122,7 +130,8 @@ export function CalculatorForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [terms, result]);
 
-  const set = (patch: Partial<CalculatorState>) => setS((prev) => ({ ...prev, ...patch }));
+  const set = (patch: Partial<CalculatorState>) =>
+    setS((prev) => ({ ...prev, ...patch }));
 
   const rateLabel =
     s.method === "flat_addon"
@@ -147,7 +156,7 @@ export function CalculatorForm({
               </option>
             ))}
           </select>
-          <p className="mt-1 text-sm text-slate-700">{METHOD_HELP[s.method]}</p>
+          <p className="field-hint">{METHOD_HELP[s.method]}</p>
         </div>
 
         <div>
@@ -193,7 +202,9 @@ export function CalculatorForm({
           <select
             className={inputCls}
             value={s.frequency}
-            onChange={(e) => set({ frequency: e.target.value as PaymentFrequency })}
+            onChange={(e) =>
+              set({ frequency: e.target.value as PaymentFrequency })
+            }
           >
             {Object.entries(FREQUENCY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -227,7 +238,10 @@ export function CalculatorForm({
 
         <div>
           <label className={labelCls}>
-            First due date <span className="normal-case text-slate-600">(optional)</span>
+            First due date{" "}
+            <span className="font-normal normal-case tracking-normal text-ink-500">
+              (optional)
+            </span>
           </label>
           <input
             type="date"
@@ -239,7 +253,10 @@ export function CalculatorForm({
 
         <div>
           <label className={labelCls}>
-            Processing fee (₱) <span className="normal-case text-slate-600">(deducted from release)</span>
+            Processing fee (₱){" "}
+            <span className="font-normal normal-case tracking-normal text-ink-500">
+              (deducted from release)
+            </span>
           </label>
           <input
             type="number"
@@ -253,34 +270,87 @@ export function CalculatorForm({
       </div>
 
       {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p
+          role="alert"
+          className="rounded-lg bg-red-50 px-3 py-2.5 text-base font-medium text-red-700"
+        >
+          {error}
+        </p>
       )}
 
       {result && (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SummaryCard label="Cash released" value={formatPeso(result.netRelease)} />
-            <SummaryCard label="Total interest" value={formatPeso(result.totalInterest)} />
-            <SummaryCard label="Total payable" value={formatPeso(result.totalPayable)} />
+          {/* Hairline grid: one shared border instead of four floating cards. */}
+          <div className="surface-quiet grid grid-cols-2 gap-px overflow-hidden bg-line sm:grid-cols-4">
+            <SummaryCard
+              label="Cash released"
+              value={formatPeso(result.netRelease)}
+            />
+            <SummaryCard
+              label="Total interest"
+              value={formatPeso(result.totalInterest)}
+            />
+            <SummaryCard
+              label="Total payable"
+              value={formatPeso(result.totalPayable)}
+            />
             <SummaryCard
               label="Per payment"
               value={formatPeso(result.perPaymentAmount)}
               hint={`≈ ${result.effectiveMonthlyRatePct.toFixed(2)}%/mo effective`}
+              emphasis
             />
           </div>
-          {showSchedule && <ScheduleTable rows={result.rows} />}
+          {showSchedule && (
+            <section>
+              <h2 className="eyebrow mb-2 text-ink-500">Payment schedule</h2>
+              <ScheduleTable rows={result.rows} />
+            </section>
+          )}
         </>
       )}
     </div>
   );
 }
 
-function SummaryCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function SummaryCard({
+  label,
+  value,
+  hint,
+  emphasis,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  emphasis?: boolean;
+}) {
   return (
-    <div className="rounded-lg border border-slate-300 bg-white p-3">
-      <p className="text-sm uppercase tracking-wide text-slate-700">{label}</p>
-      <p className="mt-1 text-lg font-semibold tabular-nums text-slate-900">{value}</p>
-      {hint && <p className="text-sm text-slate-600">{hint}</p>}
+    <div
+      className={
+        emphasis ? "bg-brand-700 p-3.5 text-white" : "bg-surface p-3.5"
+      }
+    >
+      <p
+        className={`text-xs font-bold uppercase tracking-[0.075em] ${
+          emphasis ? "text-brand-100" : "text-ink-500"
+        }`}
+      >
+        {label}
+      </p>
+      <p
+        className={`font-display mt-1 text-xl font-bold tabular-nums ${
+          emphasis ? "text-white" : "text-ink-900"
+        }`}
+      >
+        {value}
+      </p>
+      {hint && (
+        <p
+          className={`text-xs ${emphasis ? "text-brand-100/85" : "text-ink-500"}`}
+        >
+          {hint}
+        </p>
+      )}
     </div>
   );
 }

@@ -31,63 +31,87 @@ export default function PortalLoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-700 text-2xl font-bold text-white shadow-sm">₱</div>
-          <h1 className="text-2xl font-bold text-slate-900">Borrower Portal</h1>
-          <p className="mt-1 text-sm text-slate-700">
-            View your loan balance and upcoming payments
+    <main className="field-light flex min-h-screen items-center justify-center px-5 py-12">
+      <div className="animate-rise w-full max-w-md">
+        <div className="text-center">
+          <span
+            className="peso-mark mx-auto h-14 w-14 rounded-2xl text-2xl"
+            aria-hidden
+          >
+            ₱
+          </span>
+          <h1 className="mt-5 text-3xl font-bold text-ink-900">
+            Borrower Portal
+          </h1>
+          <p className="mt-2 text-base text-ink-600">
+            Check your balance and your next payment date.
           </p>
         </div>
+
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+          className="surface-panel mt-8 space-y-6 p-6 sm:p-7"
         >
           <div>
-            <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700">
+            <label htmlFor="phone" className="field-label">
               Mobile number
             </label>
             <input
+              id="phone"
               type="tel"
               required
               placeholder="0917 123 4567"
               autoComplete="tel"
-              className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+              className="field-input py-3 text-lg"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
+
           <div>
-            <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700">
+            <label htmlFor="code" className="field-label">
               Access code
             </label>
             <input
+              id="code"
               type="password"
               required
               inputMode="numeric"
               pattern="\d{6}"
               maxLength={6}
-              placeholder="6-digit code"
-              className="w-full rounded-md border border-slate-300 px-3 py-2.5 text-center font-mono text-lg tracking-[0.4em] shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+              placeholder="••••••"
+              className="field-input py-3 text-center font-mono text-2xl tracking-[0.45em]"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             />
-            <p className="mt-1 text-sm text-slate-600">
-              Ask your lender for your access code if you don&apos;t have one.
+            <p className="field-hint text-center">
+              Ask your lender for your 6-digit code if you don&apos;t have one.
             </p>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          {error && (
+            <p
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2.5 text-base font-medium text-red-700"
+            >
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+            className="btn btn-primary btn-block py-3.5 text-lg"
           >
             {busy ? "Checking…" : "View my loans"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-slate-700">
-          <Link href="/" className="font-medium text-emerald-700">
+
+        <p className="mt-6 text-center text-base">
+          <Link
+            href="/"
+            className="font-semibold text-brand-700 underline-offset-4 hover:underline"
+          >
             ← Back to home
           </Link>
         </p>

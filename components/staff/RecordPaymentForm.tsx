@@ -7,9 +7,8 @@ import { formatPeso } from "@/lib/interest/money";
 import { todayInManila } from "@/lib/tz";
 import { SignaturePad } from "@/components/staff/SignaturePad";
 
-const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+const inputCls = "field-input";
+const labelCls = "field-label";
 
 export function RecordPaymentForm({
   loanId,
@@ -26,7 +25,7 @@ export function RecordPaymentForm({
 }) {
   const router = useRouter();
   const [amount, setAmount] = useState(
-    suggestedAmount > 0 ? (suggestedAmount / 100).toFixed(2) : ""
+    suggestedAmount > 0 ? (suggestedAmount / 100).toFixed(2) : "",
   );
   const [collectorId, setCollectorId] = useState(defaultCollectorId ?? "");
   const [paymentDate, setPaymentDate] = useState(todayInManila());
@@ -40,8 +39,10 @@ export function RecordPaymentForm({
 
   function submit() {
     const centavos = Math.round(parseFloat(amount) * 100);
-    if (!Number.isFinite(centavos) || centavos <= 0) return setError("Enter a valid amount.");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return setError("Enter a valid payment date.");
+    if (!Number.isFinite(centavos) || centavos <= 0)
+      return setError("Enter a valid amount.");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate))
+      return setError("Enter a valid payment date.");
     if (method === "cash" && !signature)
       return setError("Cash payments require the payor's signature.");
     if (method !== "cash" && !referenceNo.trim())
@@ -72,11 +73,12 @@ export function RecordPaymentForm({
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
-      <h3 className="text-sm font-semibold text-slate-900">Record payment</h3>
-      <p className="mt-1 text-sm text-slate-700">
-        Outstanding: <span className="font-medium">{formatPeso(outstanding)}</span>. Penalties are
-        settled first, then the oldest dues.
+    <div className="surface-card p-4">
+      <h3 className="text-sm font-semibold text-ink-900">Record payment</h3>
+      <p className="mt-1 text-sm text-ink-700">
+        Outstanding:{" "}
+        <span className="font-medium">{formatPeso(outstanding)}</span>.
+        Penalties are settled first, then the oldest dues.
       </p>
       <div className="mt-3 space-y-3">
         <div>
@@ -99,8 +101,9 @@ export function RecordPaymentForm({
             max={todayInManila()}
             onChange={(e) => setPaymentDate(e.target.value)}
           />
-          <p className="mt-1 text-sm text-slate-600">
-            Defaults to today — change it when recording a payment received earlier.
+          <p className="mt-1 text-sm text-ink-600">
+            Defaults to today — change it when recording a payment received
+            earlier.
           </p>
         </div>
         <div>
@@ -135,7 +138,9 @@ export function RecordPaymentForm({
             <label className={labelCls}>Reference no. *</label>
             <input
               required
-              placeholder={method === "gcash" ? "GCash ref no." : "Bank transaction ref"}
+              placeholder={
+                method === "gcash" ? "GCash ref no." : "Bank transaction ref"
+              }
               className={inputCls}
               value={referenceNo}
               onChange={(e) => setReferenceNo(e.target.value)}
@@ -150,14 +155,20 @@ export function RecordPaymentForm({
         )}
         <div>
           <label className={labelCls}>Note (optional)</label>
-          <input className={inputCls} value={note} onChange={(e) => setNote(e.target.value)} />
+          <input
+            className={inputCls}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        {success && <p className="text-sm text-emerald-700">Payment recorded ✓</p>}
+        {success && (
+          <p className="text-sm text-brand-700">Payment recorded ✓</p>
+        )}
         <button
           onClick={submit}
           disabled={pending || outstanding <= 0}
-          className="w-full rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="btn btn-primary btn-block"
         >
           {pending ? "Recording…" : "Record payment"}
         </button>

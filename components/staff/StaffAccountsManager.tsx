@@ -9,18 +9,36 @@ import {
   updateStaffAccount,
   type StaffAccount,
 } from "@/lib/actions/staff";
-import { ASSIGNABLE_ROLES, ROLE_LABELS, type AssignableRole } from "@/lib/auth/roles";
+import {
+  ASSIGNABLE_ROLES,
+  ROLE_LABELS,
+  type AssignableRole,
+} from "@/lib/auth/roles";
 
-const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
-const btnSecondary =
-  "rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50";
+const inputCls = "field-input py-2";
+const labelCls = "field-label";
+const btnSecondary = "btn btn-secondary px-3 py-1.5 text-sm";
+/* No .btn-danger token exists yet, so destructive actions layer red on .btn
+   to keep radius, typography, and disabled behaviour consistent. */
+const btnDangerSolid =
+  "btn bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700";
+const btnDangerQuiet =
+  "btn border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50";
 
-export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] }) {
+export function StaffAccountsManager({
+  accounts,
+}: {
+  accounts: StaffAccount[];
+}) {
   const router = useRouter();
-  const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
-  const [revealed, setRevealed] = useState<{ email: string; password: string } | null>(null);
+  const [notice, setNotice] = useState<{
+    kind: "ok" | "error";
+    text: string;
+  } | null>(null);
+  const [revealed, setRevealed] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -36,18 +54,21 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900">Staff accounts</h2>
-          <p className="text-sm text-slate-600">
-            Owners control everything. Managers approve loans and monitor collectors.
-            Collectors propose loans, encode borrowers, and record collections.
+    <div className="surface-card overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 border-b border-line px-4 py-4">
+        <div className="min-w-0 max-w-prose">
+          <h2 className="text-base font-semibold text-ink-900">
+            Staff accounts
+          </h2>
+          <p className="mt-1 text-sm text-ink-600">
+            Owners control everything. Managers approve loans and monitor
+            collectors. Collectors propose loans, encode borrowers, and record
+            collections.
           </p>
         </div>
         <button
           onClick={() => setShowAdd((v) => !v)}
-          className="rounded-md bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+          className="btn btn-primary px-3 py-2 text-sm"
         >
           {showAdd ? "Close" : "+ Add account"}
         </button>
@@ -55,8 +76,10 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
 
       {notice && (
         <p
-          className={`mx-4 mt-3 rounded-md px-3 py-2 text-sm ${
-            notice.kind === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"
+          className={`mx-4 mt-3 rounded-field px-3 py-2 text-sm ${
+            notice.kind === "ok"
+              ? "bg-brand-50 text-brand-800"
+              : "surface-danger"
           }`}
         >
           {notice.text}
@@ -64,13 +87,17 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
       )}
 
       {revealed && (
-        <div className="mx-4 mt-3 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          Temporary password for <span className="font-semibold">{revealed.email}</span> — share it
+        <div className="mx-4 mt-3 rounded-card border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+          Temporary password for{" "}
+          <span className="font-semibold">{revealed.email}</span> — share it
           now, it won&apos;t be shown again:{" "}
-          <code className="rounded bg-white px-2 py-0.5 font-mono text-base font-bold">
+          <code className="rounded-field bg-white px-2 py-0.5 font-mono text-base font-bold tracking-wide">
             {revealed.password}
           </code>
-          <button className="ml-3 underline" onClick={() => setRevealed(null)}>
+          <button
+            className="ml-3 font-medium underline underline-offset-2"
+            onClick={() => setRevealed(null)}
+          >
             Dismiss
           </button>
         </div>
@@ -83,7 +110,10 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
             startTransition(async () => {
               const res = await createStaffAccount(input);
               if (res.ok) {
-                setRevealed({ email: input.email, password: res.value.password });
+                setRevealed({
+                  email: input.email,
+                  password: res.value.password,
+                });
                 setShowAdd(false);
               }
               done(res, `Account created for ${input.email}.`);
@@ -92,17 +122,19 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
         />
       )}
 
-      <table className="w-full text-base">
-        <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+      <table className="data-table">
+        <thead>
           <tr>
-            <th className="px-4 py-2 font-semibold">Name</th>
-            <th className="hidden px-4 py-2 font-semibold md:table-cell">Email</th>
-            <th className="px-4 py-2 font-semibold">Role</th>
-            <th className="px-4 py-2 font-semibold">Status</th>
-            <th className="px-4 py-2"></th>
+            <th>Name</th>
+            <th className="hidden md:table-cell">Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th className="text-right">
+              <span className="sr-only">Actions</span>
+            </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200">
+        <tbody>
           {accounts.map((a) =>
             editingId === a.id ? (
               <EditRow
@@ -119,30 +151,40 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
                 }
               />
             ) : (
-              <tr key={a.id} className={a.is_active ? "" : "bg-slate-50 opacity-70"}>
-                <td className="px-4 py-2.5 font-medium text-slate-900">
+              <tr
+                key={a.id}
+                className={a.is_active ? "" : "bg-sunken opacity-70"}
+              >
+                <td className="font-medium text-ink-900">
                   {a.full_name}
                   {a.isSuperAdmin && (
-                    <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-sm font-semibold text-emerald-800">
+                    <span className="badge badge-success ml-2 normal-case">
                       Super admin
                     </span>
                   )}
                 </td>
-                <td className="hidden px-4 py-2.5 text-slate-700 md:table-cell">{a.email}</td>
-                <td className="px-4 py-2.5 text-slate-700">{ROLE_LABELS[a.role] ?? a.role}</td>
-                <td className="px-4 py-2.5">
+                <td className="hidden text-ink-700 md:table-cell">{a.email}</td>
+                <td className="text-ink-700">
+                  {ROLE_LABELS[a.role] ?? a.role}
+                </td>
+                <td>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-sm font-medium ${
-                      a.is_active ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
-                    }`}
+                    className={
+                      a.is_active
+                        ? "badge badge-success"
+                        : "badge badge-neutral"
+                    }
                   >
                     {a.is_active ? "Active" : "Deactivated"}
                   </span>
                 </td>
-                <td className="px-4 py-2.5">
+                <td>
                   <div className="flex flex-wrap justify-end gap-2">
                     {!a.isSuperAdmin && (
-                      <button className={btnSecondary} onClick={() => setEditingId(a.id)}>
+                      <button
+                        className={btnSecondary}
+                        onClick={() => setEditingId(a.id)}
+                      >
                         Edit
                       </button>
                     )}
@@ -152,7 +194,11 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
                       onClick={() =>
                         startTransition(async () => {
                           const res = await resetStaffPassword(a.id);
-                          if (res.ok) setRevealed({ email: a.email, password: res.value.password });
+                          if (res.ok)
+                            setRevealed({
+                              email: a.email,
+                              password: res.value.password,
+                            });
                           done(res, `Password reset for ${a.email}.`);
                         })
                       }
@@ -162,7 +208,7 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
                     {!a.isSuperAdmin &&
                       (confirmDeleteId === a.id ? (
                         <button
-                          className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                          className={btnDangerSolid}
                           disabled={pending}
                           onClick={() =>
                             startTransition(async () => {
@@ -176,7 +222,7 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
                         </button>
                       ) : (
                         <button
-                          className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                          className={btnDangerQuiet}
                           onClick={() => {
                             setConfirmDeleteId(a.id);
                             setTimeout(() => setConfirmDeleteId(null), 4000);
@@ -188,7 +234,7 @@ export function StaffAccountsManager({ accounts }: { accounts: StaffAccount[] })
                   </div>
                 </td>
               </tr>
-            )
+            ),
           )}
         </tbody>
       </table>
@@ -214,11 +260,18 @@ function AddAccountForm({
   const [password, setPassword] = useState("");
 
   return (
-    <div className="border-b border-slate-200 bg-slate-50 px-4 py-4">
+    /* The `bg-slate-50` class here is the smoke-test anchor for the add-account
+       panel (`div.bg-slate-50` must stay unique on /settings) — do not swap it
+       for a token utility. */
+    <div className="border-b border-line bg-slate-50 px-4 py-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className={labelCls}>Full name *</label>
-          <input className={inputCls} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <input
+            className={inputCls}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         </div>
         <div>
           <label className={labelCls}>Email *</label>
@@ -245,7 +298,10 @@ function AddAccountForm({
         </div>
         <div>
           <label className={labelCls}>
-            Password <span className="normal-case text-slate-500">(leave blank to auto-generate)</span>
+            Password{" "}
+            <span className="normal-case text-ink-500">
+              (leave blank to auto-generate)
+            </span>
           </label>
           <input
             type="text"
@@ -258,8 +314,10 @@ function AddAccountForm({
       </div>
       <button
         disabled={pending || !fullName.trim() || !email.trim()}
-        onClick={() => onSubmit({ fullName, email, role, password: password || undefined })}
-        className="mt-3 rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+        onClick={() =>
+          onSubmit({ fullName, email, role, password: password || undefined })
+        }
+        className="btn btn-primary mt-3 py-2 text-sm"
       >
         {pending ? "Creating…" : "Create account"}
       </button>
@@ -276,21 +334,31 @@ function EditRow({
   account: StaffAccount;
   pending: boolean;
   onCancel: () => void;
-  onSave: (input: { fullName: string; role: AssignableRole; isActive: boolean }) => void;
+  onSave: (input: {
+    fullName: string;
+    role: AssignableRole;
+    isActive: boolean;
+  }) => void;
 }) {
   const [fullName, setFullName] = useState(account.full_name);
   const [role, setRole] = useState<AssignableRole>(
-    account.role === "super_admin" || account.role === "staff" ? "collector" : account.role
+    account.role === "super_admin" || account.role === "staff"
+      ? "collector"
+      : account.role,
   );
   const [isActive, setIsActive] = useState(account.is_active);
 
   return (
-    <tr className="bg-emerald-50/50">
-      <td className="px-4 py-2.5">
-        <input className={inputCls} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+    <tr className="bg-brand-50">
+      <td>
+        <input
+          className={inputCls}
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+        />
       </td>
-      <td className="hidden px-4 py-2.5 text-slate-700 md:table-cell">{account.email}</td>
-      <td className="px-4 py-2.5">
+      <td className="hidden text-ink-700 md:table-cell">{account.email}</td>
+      <td>
         <select
           className={inputCls}
           value={role}
@@ -303,21 +371,21 @@ function EditRow({
           ))}
         </select>
       </td>
-      <td className="px-4 py-2.5">
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+      <td>
+        <label className="flex items-center gap-2 text-sm text-ink-700">
           <input
             type="checkbox"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
-            className="h-5 w-5 accent-emerald-700"
+            className="h-5 w-5 accent-brand-700"
           />
           Active
         </label>
       </td>
-      <td className="px-4 py-2.5">
+      <td>
         <div className="flex justify-end gap-2">
           <button
-            className="rounded-md bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+            className="btn btn-primary px-3 py-1.5 text-sm"
             disabled={pending}
             onClick={() => onSave({ fullName, role, isActive })}
           >

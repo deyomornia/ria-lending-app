@@ -23,15 +23,27 @@ export function SortHeader({
 }) {
   const active = currentSort === col;
   const nextDir = active && currentDir === "asc" ? "desc" : "asc";
-  const params = new URLSearchParams({ ...otherParams, sort: col, dir: nextDir });
+  const params = new URLSearchParams({
+    ...otherParams,
+    sort: col,
+    dir: nextDir,
+  });
   return (
-    <th className={`px-4 py-2 font-semibold ${align === "right" ? "text-right" : "text-left"}`}>
+    <th
+      aria-sort={
+        active ? (currentDir === "asc" ? "ascending" : "descending") : "none"
+      }
+      className={`px-4 py-2 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
+    >
       <Link
         href={`${basePath}?${params.toString()}`}
-        className={`inline-flex items-center gap-1 hover:text-slate-900 ${active ? "text-slate-900" : ""}`}
+        className={`inline-flex items-center gap-1 hover:text-brand-700 ${active ? "text-ink-900" : "text-ink-600"}`}
       >
         {label}
-        <span className="text-xs" aria-hidden>
+        <span
+          className={`text-xs ${active ? "text-brand-700" : "text-ink-400"}`}
+          aria-hidden
+        >
           {active ? (currentDir === "asc" ? "▲" : "▼") : "↕"}
         </span>
       </Link>
@@ -43,7 +55,7 @@ export function applySort<T>(
   rows: T[],
   sort: string,
   dir: "asc" | "desc",
-  getters: Record<string, (row: T) => string | number>
+  getters: Record<string, (row: T) => string | number>,
 ): T[] {
   const get = getters[sort];
   if (!get) return rows;
@@ -51,7 +63,8 @@ export function applySort<T>(
   return [...rows].sort((a, b) => {
     const va = get(a);
     const vb = get(b);
-    if (typeof va === "number" && typeof vb === "number") return (va - vb) * mul;
+    if (typeof va === "number" && typeof vb === "number")
+      return (va - vb) * mul;
     return String(va).localeCompare(String(vb)) * mul;
   });
 }

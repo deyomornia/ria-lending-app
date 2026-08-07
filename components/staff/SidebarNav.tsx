@@ -10,9 +10,7 @@ const ICONS: Record<string, React.ReactNode> = {
   borrowers: (
     <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
   ),
-  newloan: (
-    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-  ),
+  newloan: <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />,
   loans: (
     <path d="M3 5v14h18V5H3zm16 12H5V7h14v10zM7 9h10v2H7V9zm0 4h6v2H7v-2z" />
   ),
@@ -30,16 +28,53 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { href: "/borrowers", label: "Borrowers", icon: "borrowers" },
-  { href: "/loans", label: "Loans", icon: "loans" },
-  { href: "/loans/new", label: "New Loan", icon: "newloan" },
-  { href: "/collections", label: "Collections", icon: "collections" },
-  { href: "/remittances", label: "Remittances", icon: "remit" },
-  { href: "/audit", label: "Audit Log", icon: "audit" },
-  { href: "/settings", label: "Settings", icon: "settings" },
+type NavItem = { href: string; label: string; icon: string };
+
+/** Grouped so the rail scans as three jobs, not eight links. */
+const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
+  {
+    heading: "Overview",
+    items: [{ href: "/dashboard", label: "Dashboard", icon: "dashboard" }],
+  },
+  {
+    heading: "Lending",
+    items: [
+      { href: "/borrowers", label: "Borrowers", icon: "borrowers" },
+      { href: "/loans", label: "Loans", icon: "loans" },
+      { href: "/loans/new", label: "New Loan", icon: "newloan" },
+    ],
+  },
+  {
+    heading: "Money",
+    items: [
+      { href: "/collections", label: "Collections", icon: "collections" },
+      { href: "/remittances", label: "Remittances", icon: "remit" },
+    ],
+  },
+  {
+    heading: "Admin",
+    items: [
+      { href: "/audit", label: "Audit Log", icon: "audit" },
+      { href: "/settings", label: "Settings", icon: "settings" },
+    ],
+  },
 ];
+
+const RESTRICTED = new Set(["/settings", "/audit"]);
+
+function isActive(href: string, pathname: string): boolean {
+  return (
+    pathname === href ||
+    (href === "/borrowers" && pathname.startsWith("/borrowers/")) ||
+    (href === "/loans" &&
+      pathname.startsWith("/loans/") &&
+      pathname !== "/loans/new") ||
+    (href === "/collections" && pathname.startsWith("/collections/")) ||
+    (href === "/remittances" && pathname.startsWith("/remittances/")) ||
+    (href === "/audit" && pathname.startsWith("/audit/")) ||
+    (href === "/settings" && pathname.startsWith("/settings/"))
+  );
+}
 
 export function SidebarNav({
   compact = false,
@@ -50,41 +85,65 @@ export function SidebarNav({
 }) {
   const pathname = usePathname();
 
+  const groups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter(
+      (item) => showSettings || !RESTRICTED.has(item.href),
+    ),
+  })).filter((group) => group.items.length > 0);
+
+  if (compact) {
+    return (
+      <nav className="flex gap-1" aria-label="Sections">
+        {groups.flatMap((group) =>
+          group.items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={isActive(item.href, pathname) ? "page" : undefined}
+              className="nav-link-compact"
+            >
+              {item.label}
+            </Link>
+          )),
+        )}
+      </nav>
+    );
+  }
+
   return (
-    <nav className={compact ? "flex gap-1" : "flex-1 space-y-1 px-3"}>
-      {NAV.filter((item) => showSettings || (item.href !== "/settings" && item.href !== "/audit")).map((item) => {
-        const active =
-          pathname === item.href ||
-          (item.href === "/borrowers" && pathname.startsWith("/borrowers/")) ||
-          (item.href === "/loans" && pathname.startsWith("/loans/") && pathname !== "/loans/new") ||
-          (item.href === "/collections" && pathname.startsWith("/collections/")) ||
-          (item.href === "/remittances" && pathname.startsWith("/remittances/")) ||
-          (item.href === "/audit" && pathname.startsWith("/audit/")) ||
-          (item.href === "/settings" && pathname.startsWith("/settings/"));
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={
-              compact
-                ? `rounded-md px-2 py-1.5 text-sm ${active ? "bg-emerald-800 text-white" : "text-emerald-100"}`
-                : `flex items-center gap-3 rounded-lg px-3 py-2.5 text-base transition-colors ${
-                    active
-                      ? "bg-emerald-800/80 font-semibold text-white"
-                      : "text-emerald-100/90 hover:bg-emerald-900 hover:text-white"
-                  }`
-            }
-          >
-            {!compact && (
-              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 fill-current opacity-80" aria-hidden>
-                {ICONS[item.icon]}
-              </svg>
-            )}
-            {item.label}
-          </Link>
-        );
-      })}
+    <nav
+      className="flex-1 space-y-5 overflow-y-auto px-4 py-2"
+      aria-label="Sections"
+    >
+      {groups.map((group) => (
+        <div key={group.heading}>
+          <p className="eyebrow mb-1.5 px-3 text-brand-300/60">
+            {group.heading}
+          </p>
+          <div className="space-y-0.5">
+            {group.items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={
+                  isActive(item.href, pathname) ? "page" : undefined
+                }
+                className="nav-link"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-[1.15rem] w-[1.15rem] shrink-0 fill-current opacity-70"
+                  aria-hidden
+                >
+                  {ICONS[item.icon]}
+                </svg>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
     </nav>
   );
 }

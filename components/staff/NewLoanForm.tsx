@@ -6,9 +6,8 @@ import { CalculatorForm } from "@/components/calculator/CalculatorForm";
 import { createLoan } from "@/lib/actions/loans";
 import type { LoanTerms, ScheduleResult } from "@/lib/interest/types";
 
-const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+const inputCls = "field-input";
+const labelCls = "field-label";
 
 export function NewLoanForm({
   borrowers,
@@ -37,8 +36,10 @@ export function NewLoanForm({
     if (!terms || !result) return setError("Complete the loan terms first.");
     const rateBps = Math.round(parseFloat(penaltyRatePct) * 100);
     const grace = parseInt(graceDays, 10);
-    if (!Number.isFinite(rateBps) || rateBps < 0) return setError("Invalid penalty rate.");
-    if (!Number.isFinite(grace) || grace < 0) return setError("Invalid grace days.");
+    if (!Number.isFinite(rateBps) || rateBps < 0)
+      return setError("Invalid penalty rate.");
+    if (!Number.isFinite(grace) || grace < 0)
+      return setError("Invalid grace days.");
 
     setError(null);
     startTransition(async () => {
@@ -46,7 +47,7 @@ export function NewLoanForm({
         borrowerId,
         terms,
         { rateBps, graceDays: grace },
-        collectorId || null
+        collectorId || null,
       );
       if (res.ok) {
         router.push(`/loans/${res.loanId}`);
@@ -58,7 +59,7 @@ export function NewLoanForm({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6 sm:grid-cols-2">
+      <div className="surface-card grid gap-4 p-6 sm:grid-cols-2">
         <div>
           <label className={labelCls}>Borrower *</label>
           <select
@@ -91,10 +92,8 @@ export function NewLoanForm({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Loan terms
-        </h2>
+      <div className="surface-card p-6">
+        <h2 className="eyebrow mb-4 text-ink-500">Loan terms</h2>
         <CalculatorForm
           onResult={(t, r) => {
             setTerms(t);
@@ -103,10 +102,8 @@ export function NewLoanForm({
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Late-payment penalty
-        </h2>
+      <div className="surface-card p-6">
+        <h2 className="eyebrow mb-4 text-ink-500">Late-payment penalty</h2>
         <div className="grid max-w-md grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Penalty (% of missed payment)</label>
@@ -133,12 +130,12 @@ export function NewLoanForm({
         </div>
       </div>
 
-      {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="surface-danger px-3 py-2 text-sm">{error}</p>}
 
       <button
         onClick={handleSubmit}
         disabled={pending}
-        className="rounded-md bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+        className="btn btn-primary px-6 py-3"
       >
         {pending
           ? "Submitting…"
