@@ -79,7 +79,7 @@ export function SignaturePad({
       <canvas
         ref={canvasRef}
         style={{ width: "100%", height, touchAction: "none" }}
-        className="rounded-md border-2 border-dashed border-slate-300 bg-white"
+        className="rounded-md border-2 border-dashed border-base-300 bg-white"
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={end}
@@ -87,11 +87,11 @@ export function SignaturePad({
         aria-label="Signature pad — sign with your finger or mouse"
       />
       <div className="mt-1 flex items-center justify-between">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-base-content/70">
           {hasInk ? "Signature captured ✓" : "Have the payor sign above"}
         </p>
         {hasInk && (
-          <button type="button" onClick={clear} className="text-sm text-red-600 underline">
+          <button type="button" onClick={clear} className="text-sm text-error underline">
             Clear
           </button>
         )}

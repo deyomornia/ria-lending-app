@@ -11,6 +11,8 @@ import type {
 } from "@/lib/interest/types";
 import { todayInManila } from "@/lib/tz";
 import { ScheduleTable } from "./ScheduleTable";
+import { computeDisclosure } from "@/lib/interest/disclosure";
+import { DisclosurePanel } from "./DisclosurePanel";
 
 const METHOD_LABELS: Record<InterestMethod, string> = {
   flat_addon: "Monthly flat / add-on",
@@ -20,10 +22,14 @@ const METHOD_LABELS: Record<InterestMethod, string> = {
 };
 
 const METHOD_HELP: Record<InterestMethod, string> = {
-  flat_addon: "Interest = principal × monthly rate × months. The common “5-6” style.",
-  diminishing: "Bank-style amortization — interest charged only on the remaining balance.",
-  one_time_fixed: "One agreed interest amount, e.g. borrow ₱10,000 and repay ₱12,000.",
-  per_period_flat: "Each payment carries interest = principal × rate. Daily/weekly hulugan.",
+  flat_addon:
+    "Interest = principal × monthly rate × months. The common “5-6” style.",
+  diminishing:
+    "Bank-style amortization — interest charged only on the remaining balance.",
+  one_time_fixed:
+    "One agreed interest amount, e.g. borrow ₱10,000 and repay ₱12,000.",
+  per_period_flat:
+    "Each payment carries interest = principal × rate. Daily/weekly hulugan.",
 };
 
 const FREQUENCY_LABELS: Record<PaymentFrequency, string> = {
@@ -86,14 +92,22 @@ export function stateToTerms(s: CalculatorState): LoanTerms | null {
 
   const bps = Math.round(parseFloat(s.ratePct) * 100);
   if (!Number.isFinite(bps) || bps < 0) return null;
-  if (s.method === "flat_addon") return { ...base, method: "flat_addon", ratePerMonthBps: bps };
-  if (s.method === "diminishing") return { ...base, method: "diminishing", ratePerPeriodBps: bps };
+  if (s.method === "flat_addon")
+    return { ...base, method: "flat_addon", ratePerMonthBps: bps };
+  if (s.method === "diminishing")
+    return { ...base, method: "diminishing", ratePerPeriodBps: bps };
   return { ...base, method: "per_period_flat", ratePerPeriodBps: bps };
 }
 
-const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "block text-sm font-medium uppercase tracking-wide text-slate-700 mb-1";
+// The previous hand-rolled classes included `focus:outline-none`, which beat the
+// global `:focus-visible` rule and removed the 3px focus ring these fields are
+// supposed to have. daisyUI does not fix that on its own — it substitutes its
+// own 2px ring — so globals.css re-asserts the thicker ring at matching
+// specificity. See the focus block there.
+const inputCls = "input w-full text-base";
+const selectCls = "select w-full text-base";
+const labelCls =
+  "block text-sm font-medium uppercase tracking-wide text-base-content/70 mb-1";
 
 export function CalculatorForm({
   initial,
@@ -105,15 +119,30 @@ export function CalculatorForm({
   onResult?: (terms: LoanTerms | null, result: ScheduleResult | null) => void;
   showSchedule?: boolean;
 }) {
-  const [s, setS] = useState<CalculatorState>({ ...defaultCalculatorState(), ...initial });
+  const [s, setS] = useState<CalculatorState>({
+    ...defaultCalculatorState(),
+    ...initial,
+  });
 
-  const { terms, result, error } = useMemo(() => {
+  const { terms, result, disclosure, error } = useMemo(() => {
     const terms = stateToTerms(s);
-    if (!terms) return { terms: null, result: null, error: null };
+    if (!terms)
+      return { terms: null, result: null, disclosure: null, error: null };
     try {
-      return { terms, result: computeSchedule(terms), error: null };
+      const result = computeSchedule(terms);
+      return {
+        terms,
+        result,
+        disclosure: computeDisclosure(result, terms.releaseDate),
+        error: null,
+      };
     } catch (e) {
-      return { terms: null, result: null, error: (e as Error).message };
+      return {
+        terms: null,
+        result: null,
+        disclosure: null,
+        error: (e as Error).message,
+      };
     }
   }, [s]);
 
@@ -122,7 +151,8 @@ export function CalculatorForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [terms, result]);
 
-  const set = (patch: Partial<CalculatorState>) => setS((prev) => ({ ...prev, ...patch }));
+  const set = (patch: Partial<CalculatorState>) =>
+    setS((prev) => ({ ...prev, ...patch }));
 
   const rateLabel =
     s.method === "flat_addon"
@@ -137,7 +167,7 @@ export function CalculatorForm({
         <div className="sm:col-span-2">
           <label className={labelCls}>Interest method</label>
           <select
-            className={inputCls}
+            className={selectCls}
             value={s.method}
             onChange={(e) => set({ method: e.target.value as InterestMethod })}
           >
@@ -147,7 +177,9 @@ export function CalculatorForm({
               </option>
             ))}
           </select>
-          <p className="mt-1 text-sm text-slate-700">{METHOD_HELP[s.method]}</p>
+          <p className="mt-1 text-sm text-base-content/70">
+            {METHOD_HELP[s.method]}
+          </p>
         </div>
 
         <div>
@@ -191,9 +223,11 @@ export function CalculatorForm({
         <div>
           <label className={labelCls}>Payment frequency</label>
           <select
-            className={inputCls}
+            className={selectCls}
             value={s.frequency}
-            onChange={(e) => set({ frequency: e.target.value as PaymentFrequency })}
+            onChange={(e) =>
+              set({ frequency: e.target.value as PaymentFrequency })
+            }
           >
             {Object.entries(FREQUENCY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -227,7 +261,8 @@ export function CalculatorForm({
 
         <div>
           <label className={labelCls}>
-            First due date <span className="normal-case text-slate-600">(optional)</span>
+            First due date{" "}
+            <span className="normal-case text-base-content/70">(optional)</span>
           </label>
           <input
             type="date"
@@ -239,7 +274,10 @@ export function CalculatorForm({
 
         <div>
           <label className={labelCls}>
-            Processing fee (₱) <span className="normal-case text-slate-600">(deducted from release)</span>
+            Processing fee (₱){" "}
+            <span className="normal-case text-base-content/70">
+              (deducted from release)
+            </span>
           </label>
           <input
             type="number"
@@ -253,21 +291,38 @@ export function CalculatorForm({
       </div>
 
       {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p role="alert" className="alert alert-error alert-soft text-sm">
+          {error}
+        </p>
       )}
 
       {result && (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SummaryCard label="Cash released" value={formatPeso(result.netRelease)} />
-            <SummaryCard label="Total interest" value={formatPeso(result.totalInterest)} />
-            <SummaryCard label="Total payable" value={formatPeso(result.totalPayable)} />
+            <SummaryCard
+              label="Cash released"
+              value={formatPeso(result.netRelease)}
+            />
+            <SummaryCard
+              label="Total interest"
+              value={formatPeso(result.totalInterest)}
+            />
+            <SummaryCard
+              label="Total payable"
+              value={formatPeso(result.totalPayable)}
+            />
             <SummaryCard
               label="Per payment"
               value={formatPeso(result.perPaymentAmount)}
-              hint={`≈ ${result.effectiveMonthlyRatePct.toFixed(2)}%/mo effective`}
+              hint={`${result.effectiveMonthlyRatePct.toFixed(2)}%/mo quoted`}
             />
           </div>
+          {disclosure && (
+            <DisclosurePanel
+              disclosure={disclosure}
+              quotedMonthlyRatePct={result.effectiveMonthlyRatePct}
+            />
+          )}
           {showSchedule && <ScheduleTable rows={result.rows} />}
         </>
       )}
@@ -275,12 +330,22 @@ export function CalculatorForm({
   );
 }
 
-function SummaryCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function SummaryCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
-    <div className="rounded-lg border border-slate-300 bg-white p-3">
-      <p className="text-sm uppercase tracking-wide text-slate-700">{label}</p>
-      <p className="mt-1 text-lg font-semibold tabular-nums text-slate-900">{value}</p>
-      {hint && <p className="text-sm text-slate-600">{hint}</p>}
+    <div className="stat bg-base-100 border-base-300 rounded-box border p-3">
+      <p className="stat-title text-sm uppercase tracking-wide">{label}</p>
+      <p className="stat-value mt-1 text-lg font-semibold tabular-nums">
+        {value}
+      </p>
+      {hint && <p className="stat-desc text-sm">{hint}</p>}
     </div>
   );
 }

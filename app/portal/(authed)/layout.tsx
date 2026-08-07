@@ -7,8 +7,8 @@ export default async function PortalLayout({ children }: { children: React.React
   if (!borrowerId) redirect("/portal/login");
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="flex items-center justify-between bg-slate-900 px-4 py-3 text-white">
+    <div className="min-h-screen bg-base-200">
+      <header className="flex items-center justify-between bg-neutral px-4 py-3 text-neutral-content">
         <p className="font-bold">RIA Lending · My Loans</p>
         <PortalSignOut />
       </header>

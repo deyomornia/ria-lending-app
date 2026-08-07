@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+  "w-full rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-base-content/70";
 
 export function ChangePasswordForm({ email }: { email: string }) {
   const router = useRouter();
@@ -53,9 +53,9 @@ export function ChangePasswordForm({ email }: { email: string }) {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-6 text-center">
-        <p className="text-lg font-semibold text-emerald-800">Password changed ✓</p>
-        <p className="mt-1 text-base text-emerald-700">
+      <div className="rounded-xl border border-primary/40 bg-primary/5 p-6 text-center">
+        <p className="text-lg font-semibold text-primary">Password changed ✓</p>
+        <p className="mt-1 text-base text-primary">
           Use your new password the next time you sign in.
         </p>
       </div>
@@ -63,7 +63,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form onSubmit={submit} className="space-y-4 rounded-xl border border-base-300 bg-white p-6 shadow-sm">
       <div>
         <label className={labelCls}>Current password</label>
         <input
@@ -86,7 +86,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
           value={next}
           onChange={(e) => setNext(e.target.value)}
         />
-        <p className="mt-1 text-sm text-slate-600">At least 8 characters. Use something only you know.</p>
+        <p className="mt-1 text-sm text-base-content/70">At least 8 characters. Use something only you know.</p>
       </div>
       <div>
         <label className={labelCls}>Confirm new password</label>
@@ -99,11 +99,11 @@ export function ChangePasswordForm({ email }: { email: string }) {
           onChange={(e) => setConfirm(e.target.value)}
         />
       </div>
-      {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-md bg-error/10 px-3 py-2 text-sm text-error">{error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+        className="rounded-md bg-primary px-4 py-2.5 text-base font-semibold text-primary-content hover:bg-secondary disabled:opacity-50"
       >
         {pending ? "Changing…" : "Change password"}
       </button>

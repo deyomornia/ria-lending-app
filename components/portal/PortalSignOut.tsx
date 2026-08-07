@@ -11,7 +11,7 @@ export function PortalSignOut() {
         router.push("/portal/login");
         router.refresh();
       }}
-      className="text-sm text-slate-200 hover:text-white"
+      className="text-sm text-neutral-content/70 hover:text-neutral-content"
     >
       Sign out
     </button>

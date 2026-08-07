@@ -29,7 +29,7 @@ export default async function BorrowersPage({
         action={
           <Link
             href="/borrowers/new"
-            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
+            className="rounded-lg bg-primary px-4 py-2.5 text-base font-semibold text-primary-content shadow-sm hover:bg-secondary"
           >
             + Add borrower
           </Link>
@@ -42,31 +42,31 @@ export default async function BorrowersPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="Search by name or phone…"
-          className="w-full max-w-sm rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm"
+          className="w-full max-w-sm rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm"
         />
       </form>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-base-300 bg-white shadow-sm">
         <table className="w-full text-base">
-          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+          <thead className="bg-base-200 text-left text-sm uppercase tracking-wide text-base-content/70">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Phone</th>
               <th className="px-4 py-2">Active loans</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-base-300">
             {(borrowers ?? []).map((b) => {
               const active = (b.loans ?? []).filter((l) => l.status === "active");
               return (
-                <tr key={b.id} className="hover:bg-slate-50">
+                <tr key={b.id} className="hover:bg-base-200">
                   <td className="px-4 py-2">
-                    <Link href={`/borrowers/${b.id}`} className="font-medium text-emerald-700">
+                    <Link href={`/borrowers/${b.id}`} className="font-medium text-primary">
                       {b.full_name}
                     </Link>
                   </td>
-                  <td className="px-4 py-2 text-slate-700">{b.phone}</td>
-                  <td className="px-4 py-2 text-slate-700">
+                  <td className="px-4 py-2 text-base-content/70">{b.phone}</td>
+                  <td className="px-4 py-2 text-base-content/70">
                     {active.length > 0
                       ? `${active.length} · ${formatPeso(active.reduce((a, l) => a + l.total_payable_centavos, 0))} payable`
                       : "—"}
@@ -76,7 +76,7 @@ export default async function BorrowersPage({
             })}
             {(borrowers ?? []).length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-slate-600">
+                <td colSpan={3} className="px-4 py-8 text-center text-base-content/70">
                   No borrowers yet. Add your first borrower to get started.
                 </td>
               </tr>

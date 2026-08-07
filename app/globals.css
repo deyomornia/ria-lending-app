@@ -1,13 +1,59 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * The "ria" theme carries the app's existing palette rather than replacing it.
+ * Every value below is the exact hex of the Tailwind colour already used in the
+ * markup (emerald-700 action, emerald-950 chrome, slate surfaces), so pages not
+ * yet converted to daisyUI class names stay pixel-identical to converted ones.
+ *
+ * The semantic slots are already how this app reasons about colour: red means
+ * money at risk, amber means 1–30 days late, sky means "release cash". Those map
+ * onto error / warning / info exactly, so status colours keep their meaning.
+ *
+ * Single light theme on purpose — see the note on dark mode below.
+ */
+@plugin "daisyui/theme" {
+  name: "ria";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f1f5f9;
+  --color-base-300: #e2e8f0;
+  --color-base-content: #0f172a;
+  --color-primary: #047857;
+  --color-primary-content: #ffffff;
+  --color-secondary: #065f46;
+  --color-secondary-content: #ffffff;
+  --color-accent: #059669;
+  --color-accent-content: #ffffff;
+  --color-neutral: #022c22;
+  --color-neutral-content: #ffffff;
+  --color-info: #0369a1;
+  --color-info-content: #ffffff;
+  --color-success: #047857;
+  --color-success-content: #ffffff;
+  --color-warning: #b45309;
+  --color-warning-content: #ffffff;
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+
+  --depth: 0;
+  --noise: 0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-sans-readable);
   --font-mono: var(--font-geist-mono);
 }
@@ -21,19 +67,93 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-sans-readable), Arial, Helvetica, sans-serif;
 }
 
-/* Placeholders default to gray-400 which fails contrast — darken them. */
+/*
+ * daisyUI's placeholder is base-content at 40%, which measures 2.86:1 against
+ * base-100 and fails WCAG AA. This app is read by older collectors in daylight,
+ * so mix to a fixed 60% instead — measured 5.41:1, comfortably over the 4.5:1
+ * AA threshold. Derived from the theme token, so it follows a palette change.
+ */
 ::placeholder {
-  color: #64748b; /* slate-500 on white ≈ 4.8:1 */
+  color: color-mix(
+    in oklch,
+    var(--color-base-content) 60%,
+    var(--color-base-100)
+  );
   opacity: 1;
 }
 
-/* Thick, high-visibility keyboard focus for older users. */
+/*
+ * Thick, high-visibility keyboard focus for older users — deliberately heavier
+ * than daisyUI's default 2px ring, and driven by the theme's primary colour.
+ *
+ * The component selectors below are not redundant. daisyUI styles focus as
+ * `.input:focus-visible` (specificity 0,2,0), which outranks a bare
+ * `:focus-visible` (0,1,0) and would quietly restore its own thinner 2px ring on
+ * every form control. Matching its specificity, and landing later in the
+ * cascade, keeps the accessible ring on the elements that most need it.
+ */
 :focus-visible {
-  outline: 3px solid #047857; /* emerald-700 */
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.input:focus-visible,
+.input:focus-within,
+.select:focus-visible,
+.select:focus-within,
+.textarea:focus-visible,
+.btn:focus-visible,
+.checkbox:focus-visible,
+.radio:focus-visible,
+.toggle:focus-visible,
+.tab:focus-visible,
+.link:focus-visible,
+.menu :where(a, button):focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/*
+ * Motion is transform-only (never width/height/top/left), so a growing bar
+ * costs no layout pass. Final geometry is set inline from the computed rates —
+ * the animation only scales toward a value that is already correct, so a
+ * reader with motion disabled sees the identical end state.
+ */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-grow-x {
+  transform-origin: left center;
+  animation: grow-x 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-rise-in {
+  animation: rise-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-grow-x,
+  .animate-rise-in {
+    animation: none;
+  }
 }

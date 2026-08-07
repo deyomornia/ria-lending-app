@@ -15,18 +15,18 @@ export function AccessCodePanel({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
-      <h3 className="text-sm font-semibold text-slate-900">Debtor portal access</h3>
-      <p className="mt-1 text-sm text-slate-700">
+    <div className="rounded-xl border border-base-300 bg-white shadow-sm p-4">
+      <h3 className="text-sm font-semibold text-base-content">Debtor portal access</h3>
+      <p className="mt-1 text-sm text-base-content/70">
         {hasCode
           ? "This borrower has a portal access code. Issuing a new one replaces it."
           : "No access code yet. Issue one so the borrower can view their balance online."}
       </p>
       {code ? (
-        <div className="mt-3 rounded-md bg-emerald-50 p-3 text-center">
-          <p className="text-sm uppercase tracking-wide text-emerald-700">Access code — share it now, it won&apos;t be shown again</p>
-          <p className="mt-1 font-mono text-2xl font-bold tracking-[0.3em] text-emerald-800">{code}</p>
-          <p className="mt-1 text-sm text-emerald-700">
+        <div className="mt-3 rounded-md bg-primary/5 p-3 text-center">
+          <p className="text-sm uppercase tracking-wide text-primary">Access code — share it now, it won&apos;t be shown again</p>
+          <p className="mt-1 font-mono text-2xl font-bold tracking-[0.3em] text-primary">{code}</p>
+          <p className="mt-1 text-sm text-primary">
             Borrower logs in at <span className="font-medium">/portal/login</span> with their mobile number + this code.
           </p>
         </div>
@@ -41,12 +41,12 @@ export function AccessCodePanel({
               else setError(res.error);
             })
           }
-          className="mt-3 rounded-md border border-emerald-600 px-3 py-2 text-base font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+          className="mt-3 rounded-md border border-primary px-3 py-2 text-base font-medium text-primary hover:bg-primary/5 disabled:opacity-50"
         >
           {pending ? "Issuing…" : hasCode ? "Issue new code" : "Issue access code"}
         </button>
       )}
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-error">{error}</p>}
     </div>
   );
 }

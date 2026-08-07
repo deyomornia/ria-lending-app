@@ -19,7 +19,7 @@ export function VoidPaymentButton({ paymentId }: { paymentId: string }) {
           router.refresh();
         });
       }}
-      className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+      className="text-sm font-medium text-error hover:text-error disabled:opacity-50"
     >
       {pending ? "Voiding…" : "Void"}
     </button>
@@ -45,7 +45,7 @@ export function WaivePenaltyButton({ penaltyId }: { penaltyId: string }) {
           router.refresh();
         });
       }}
-      className="text-sm font-medium text-amber-700 hover:text-amber-800 disabled:opacity-50"
+      className="text-sm font-medium text-warning hover:text-warning disabled:opacity-50"
     >
       {pending ? "Waiving…" : confirming ? "Confirm waive?" : "Waive"}
     </button>

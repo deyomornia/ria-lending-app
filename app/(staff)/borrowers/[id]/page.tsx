@@ -8,12 +8,12 @@ import { AccessCodePanel } from "@/components/staff/AccessCodePanel";
 export const metadata = { title: "Borrower — RIA Lending" };
 
 const STATUS_BADGE: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-800",
-  paid: "bg-slate-100 text-slate-600",
-  defaulted: "bg-red-100 text-red-700",
-  cancelled: "bg-slate-100 text-slate-700",
-  restructured: "bg-amber-100 text-amber-800",
-  draft: "bg-slate-100 text-slate-700",
+  active: "bg-primary/10 text-primary",
+  paid: "bg-base-200 text-base-content/70",
+  defaulted: "bg-error/20 text-error",
+  cancelled: "bg-base-200 text-base-content/70",
+  restructured: "bg-warning/20 text-warning",
+  draft: "bg-base-200 text-base-content/70",
 };
 
 export default async function BorrowerPage({ params }: { params: Promise<{ id: string }> }) {
@@ -45,18 +45,18 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">{borrower.full_name}</h1>
-          <p className="text-sm text-slate-700">{borrower.phone}</p>
-          {borrower.address && <p className="text-sm text-slate-700">{borrower.address}</p>}
+          <h1 className="text-xl font-bold text-base-content">{borrower.full_name}</h1>
+          <p className="text-sm text-base-content/70">{borrower.phone}</p>
+          {borrower.address && <p className="text-sm text-base-content/70">{borrower.address}</p>}
           {borrower.id_type && (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-base-content/70">
               {borrower.id_type} · {borrower.id_number}
             </p>
           )}
         </div>
         <Link
           href={`/loans/new?borrower=${borrower.id}`}
-          className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800"
+          className="rounded-md bg-primary px-4 py-2.5 text-base font-semibold text-primary-content hover:bg-secondary"
         >
           + New loan
         </Link>
@@ -64,10 +64,10 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Loans</h2>
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70">Loans</h2>
+          <div className="overflow-hidden rounded-xl border border-base-300 bg-white shadow-sm">
             <table className="w-full text-base">
-              <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+              <thead className="bg-base-200 text-left text-sm uppercase tracking-wide text-base-content/70">
                 <tr>
                   <th className="px-4 py-2">Loan #</th>
                   <th className="px-4 py-2">Status</th>
@@ -75,7 +75,7 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
                   <th className="px-4 py-2 text-right">Outstanding</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-base-300">
                 {(borrower.loans ?? []).map(
                   (l: {
                     id: string;
@@ -83,9 +83,9 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
                     status: string;
                     principal_centavos: number;
                   }) => (
-                    <tr key={l.id} className="hover:bg-slate-50">
+                    <tr key={l.id} className="hover:bg-base-200">
                       <td className="px-4 py-2">
-                        <Link href={`/loans/${l.id}`} className="font-medium text-emerald-700">
+                        <Link href={`/loans/${l.id}`} className="font-medium text-primary">
                           {l.loan_number}
                         </Link>
                       </td>
@@ -107,7 +107,7 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
                 )}
                 {(borrower.loans ?? []).length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-slate-600">
+                    <td colSpan={4} className="px-4 py-6 text-center text-base-content/70">
                       No loans yet.
                     </td>
                   </tr>
@@ -120,9 +120,9 @@ export default async function BorrowerPage({ params }: { params: Promise<{ id: s
         <div className="space-y-4">
           <AccessCodePanel borrowerId={borrower.id} hasCode={!!access} />
           {borrower.notes && (
-            <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-slate-900">Notes</h3>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{borrower.notes}</p>
+            <div className="rounded-xl border border-base-300 bg-white shadow-sm p-4">
+              <h3 className="text-sm font-semibold text-base-content">Notes</h3>
+              <p className="mt-1 whitespace-pre-wrap text-sm text-base-content/70">{borrower.notes}</p>
             </div>
           )}
         </div>

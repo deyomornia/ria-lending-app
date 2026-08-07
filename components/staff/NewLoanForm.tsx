@@ -7,8 +7,8 @@ import { createLoan } from "@/lib/actions/loans";
 import type { LoanTerms, ScheduleResult } from "@/lib/interest/types";
 
 const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+  "w-full rounded-md border border-base-300 px-3 py-2.5 text-base shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-base-content/70";
 
 export function NewLoanForm({
   borrowers,
@@ -58,7 +58,7 @@ export function NewLoanForm({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6 sm:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border border-base-300 bg-white shadow-sm p-6 sm:grid-cols-2">
         <div>
           <label className={labelCls}>Borrower *</label>
           <select
@@ -91,8 +91,8 @@ export function NewLoanForm({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
+      <div className="rounded-xl border border-base-300 bg-white shadow-sm p-6">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-base-content/70">
           Loan terms
         </h2>
         <CalculatorForm
@@ -103,8 +103,8 @@ export function NewLoanForm({
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-700">
+      <div className="rounded-xl border border-base-300 bg-white shadow-sm p-6">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-base-content/70">
           Late-payment penalty
         </h2>
         <div className="grid max-w-md grid-cols-2 gap-4">
@@ -133,12 +133,12 @@ export function NewLoanForm({
         </div>
       </div>
 
-      {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-md bg-error/10 px-3 py-2 text-sm text-error">{error}</p>}
 
       <button
         onClick={handleSubmit}
         disabled={pending}
-        className="rounded-md bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+        className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-content hover:bg-secondary disabled:opacity-50"
       >
         {pending
           ? "Submitting…"

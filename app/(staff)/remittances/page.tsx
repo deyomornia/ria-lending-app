@@ -92,16 +92,16 @@ export default async function RemittancesPage({
         action={
           <form className="flex items-end gap-2">
             <div>
-              <label className="mb-1 block text-sm uppercase tracking-wide text-slate-700">Date</label>
+              <label className="mb-1 block text-sm uppercase tracking-wide text-base-content/70">Date</label>
               <input
                 type="date"
                 name="date"
                 defaultValue={date}
                 max={today}
-                className="rounded-md border border-slate-300 px-3 py-2 text-base"
+                className="rounded-md border border-base-300 px-3 py-2 text-base"
               />
             </div>
-            <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
+            <button className="rounded-md bg-neutral px-3 py-2 text-base font-medium text-neutral-content">
               View
             </button>
           </form>
@@ -110,14 +110,14 @@ export default async function RemittancesPage({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-4 py-3">
-              <h2 className="text-base font-semibold text-slate-900">
+          <section className="overflow-x-auto rounded-xl border border-base-300 bg-white shadow-sm">
+            <div className="border-b border-base-300 px-4 py-3">
+              <h2 className="text-base font-semibold text-base-content">
                 Collector monitoring — {formatLongDate(date)}
               </h2>
             </div>
             <table className="w-full text-base">
-              <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+              <thead className="bg-base-200 text-left text-sm uppercase tracking-wide text-base-content/70">
                 <tr>
                   <th className="px-4 py-2 font-semibold">Collector</th>
                   <th className="px-4 py-2 text-right font-semibold">Released</th>
@@ -126,13 +126,13 @@ export default async function RemittancesPage({
                   <th className="px-4 py-2 text-right font-semibold">Shortage</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-base-300">
                 {rows.map((r) => {
                   const shortage = r.collected - r.confirmed - r.pending;
                   return (
                     <tr key={r.collectorId}>
-                      <td className="px-4 py-2.5 font-medium text-slate-900">{r.name}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-slate-700">
+                      <td className="px-4 py-2.5 font-medium text-base-content">{r.name}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-base-content/70">
                         {r.released > 0 ? formatPeso(r.released) : "—"}
                       </td>
                       <td className="px-4 py-2.5 text-right tabular-nums">
@@ -143,7 +143,7 @@ export default async function RemittancesPage({
                           <>
                             {formatPeso(r.confirmed)}
                             {r.pending > 0 && (
-                              <span className="ml-1 text-sm text-amber-700">
+                              <span className="ml-1 text-sm text-warning">
                                 (+{formatPeso(r.pending)} pending)
                               </span>
                             )}
@@ -154,7 +154,7 @@ export default async function RemittancesPage({
                       </td>
                       <td
                         className={`px-4 py-2.5 text-right font-semibold tabular-nums ${
-                          shortage > 0 ? "text-red-600" : "text-emerald-700"
+                          shortage > 0 ? "text-error" : "text-primary"
                         }`}
                       >
                         {shortage > 0 ? formatPeso(shortage) : "✓"}
@@ -164,7 +164,7 @@ export default async function RemittancesPage({
                 })}
                 {rows.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-slate-600">
+                    <td colSpan={5} className="px-4 py-8 text-center text-base-content/70">
                       No releases, collections, or remittances on this date.
                     </td>
                   </tr>
@@ -173,32 +173,32 @@ export default async function RemittancesPage({
             </table>
           </section>
 
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-4 py-3">
-              <h2 className="text-base font-semibold text-slate-900">
+          <section className="overflow-hidden rounded-xl border border-base-300 bg-white shadow-sm">
+            <div className="border-b border-base-300 px-4 py-3">
+              <h2 className="text-base font-semibold text-base-content">
                 Remittance entries — {formatLongDate(date)}
               </h2>
             </div>
             <table className="w-full text-base">
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-base-300">
                 {(remits ?? []).map((r) => (
                   <tr key={r.id}>
-                    <td className="px-4 py-2.5 font-medium text-slate-900">
+                    <td className="px-4 py-2.5 font-medium text-base-content">
                       {r.collector?.full_name}
-                      {r.note && <span className="ml-2 text-sm text-slate-600">{r.note}</span>}
+                      {r.note && <span className="ml-2 text-sm text-base-content/70">{r.note}</span>}
                     </td>
                     <td className="px-4 py-2.5 text-right tabular-nums">
                       {formatPeso(r.amount_centavos)}
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       {r.status === "confirmed" ? (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-sm font-medium text-emerald-800">
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-sm font-medium text-primary">
                           Confirmed · {nameById.get(r.confirmed_by) ?? ""}
                         </span>
                       ) : canManage ? (
                         <ConfirmRemitButton remittanceId={r.id} />
                       ) : (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-sm font-medium text-amber-800">
+                        <span className="rounded-full bg-warning/20 px-2 py-0.5 text-sm font-medium text-warning">
                           Awaiting confirmation
                         </span>
                       )}
@@ -207,7 +207,7 @@ export default async function RemittancesPage({
                 ))}
                 {(remits ?? []).length === 0 && (
                   <tr>
-                    <td className="px-4 py-6 text-center text-slate-600">
+                    <td className="px-4 py-6 text-center text-base-content/70">
                       No remittances recorded for this date.
                     </td>
                   </tr>
@@ -216,7 +216,7 @@ export default async function RemittancesPage({
             </table>
           </section>
           {pendingRemits.length > 0 && !canManage && (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-base-content/70">
               {pendingRemits.length} remittance{pendingRemits.length === 1 ? "" : "s"} awaiting a
               Manager/Owner&apos;s confirmation.
             </p>

@@ -29,9 +29,9 @@ export function LoanWorkflowPanel({
 
   if (status === "pending_approval") {
     return (
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-        <p className="text-base font-semibold text-amber-900">Awaiting approval</p>
-        <p className="mt-1 text-sm text-amber-800">
+      <div className="rounded-xl border border-warning/40 bg-warning/10 p-4">
+        <p className="text-base font-semibold text-warning">Awaiting approval</p>
+        <p className="mt-1 text-sm text-warning">
           This loan proposal needs a Manager or Owner&apos;s decision before cash can be released.
         </p>
         {canApprove && (
@@ -39,7 +39,7 @@ export function LoanWorkflowPanel({
             <button
               disabled={pending}
               onClick={() => run(() => approveLoan(loanId))}
-              className="rounded-md bg-emerald-700 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+              className="rounded-md bg-primary px-4 py-2 text-base font-semibold text-primary-content hover:bg-secondary disabled:opacity-50"
             >
               {pending ? "Working…" : "Approve"}
             </button>
@@ -50,22 +50,22 @@ export function LoanWorkflowPanel({
                 if (!reason) return;
                 run(() => rejectLoan(loanId, reason));
               }}
-              className="rounded-md border border-red-300 bg-white px-4 py-2 text-base font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="rounded-md border border-error/40 bg-white px-4 py-2 text-base font-medium text-error hover:bg-error/10 disabled:opacity-50"
             >
               Reject
             </button>
           </div>
         )}
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-sm text-error">{error}</p>}
       </div>
     );
   }
 
   if (status === "approved") {
     return (
-      <div className="rounded-xl border border-sky-300 bg-sky-50 p-4">
-        <p className="text-base font-semibold text-sky-900">Approved — awaiting cash release</p>
-        <p className="mt-1 text-sm text-sky-800">
+      <div className="rounded-xl border border-info/40 bg-info/10 p-4">
+        <p className="text-base font-semibold text-info">Approved — awaiting cash release</p>
+        <p className="mt-1 text-sm text-info">
           Recording the release hands the cash to the borrower and re-anchors the payment schedule
           to today&apos;s date.
         </p>
@@ -79,11 +79,11 @@ export function LoanWorkflowPanel({
             }
             run(() => releaseLoan(loanId));
           }}
-          className="mt-3 rounded-md bg-sky-700 px-4 py-2 text-base font-semibold text-white hover:bg-sky-800 disabled:opacity-50"
+          className="mt-3 rounded-md bg-info px-4 py-2 text-base font-semibold text-info-content hover:bg-info/90 disabled:opacity-50"
         >
           {pending ? "Releasing…" : confirmRelease ? "Confirm — cash handed over?" : "Release cash"}
         </button>
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-sm text-error">{error}</p>}
       </div>
     );
   }

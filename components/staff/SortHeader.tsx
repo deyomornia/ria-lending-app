@@ -28,7 +28,7 @@ export function SortHeader({
     <th className={`px-4 py-2 font-semibold ${align === "right" ? "text-right" : "text-left"}`}>
       <Link
         href={`${basePath}?${params.toString()}`}
-        className={`inline-flex items-center gap-1 hover:text-slate-900 ${active ? "text-slate-900" : ""}`}
+        className={`inline-flex items-center gap-1 hover:text-base-content ${active ? "text-base-content" : ""}`}
       >
         {label}
         <span className="text-xs" aria-hidden>
