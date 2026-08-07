@@ -11,14 +11,18 @@ import { VoidPaymentButton } from "@/components/staff/OwnerActions";
 
 export const metadata = { title: "Payment — RIA Lending" };
 
-export default async function PaymentPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PaymentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { supabase, profile } = await requireStaff();
   const { id } = await params;
 
   const { data: payment } = await supabase
     .from("payments")
     .select(
-      "*, profiles!payments_received_by_fkey(full_name), collector:profiles!payments_collector_id_fkey(full_name), voider:profiles!payments_voided_by_fkey(full_name), loans!inner(id, loan_number, borrowers!inner(id, full_name, phone))"
+      "*, profiles!payments_received_by_fkey(full_name), collector:profiles!payments_collector_id_fkey(full_name), voider:profiles!payments_voided_by_fkey(full_name), loans!inner(id, loan_number, borrowers!inner(id, full_name, phone))",
     )
     .eq("id", id)
     .single();
@@ -27,9 +31,15 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
   const [{ data: allocations }, { data: collectors }] = await Promise.all([
     supabase
       .from("payment_allocations")
-      .select("amount_centavos, schedule_items(seq, due_date), penalties(assessed_on)")
+      .select(
+        "amount_centavos, schedule_items(seq, due_date), penalties(assessed_on)",
+      )
       .eq("payment_id", id),
-    supabase.from("profiles").select("id, full_name").eq("is_active", true).order("full_name"),
+    supabase
+      .from("profiles")
+      .select("id, full_name")
+      .eq("is_active", true)
+      .order("full_name"),
   ]);
 
   // Per-payment audit trail (audit_log is service-role only by design)
@@ -41,7 +51,9 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
     .eq("entity_id", id)
     .order("created_at", { ascending: false })
     .limit(50);
-  const actorIds = [...new Set((history ?? []).map((h) => h.actor_id).filter(Boolean))];
+  const actorIds = [
+    ...new Set((history ?? []).map((h) => h.actor_id).filter(Boolean)),
+  ];
   const { data: actors } = actorIds.length
     ? await admin.from("profiles").select("id, full_name").in("id", actorIds)
     : { data: [] };
@@ -57,32 +69,39 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         action={
           <div className="flex items-center gap-3">
             {payment.voided_at ? (
-              <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
+              <span className="badge badge-danger px-3 py-1 font-semibold">
                 VOIDED
               </span>
             ) : (
-              isOwnerUp(profile.role) && <VoidPaymentButton paymentId={payment.id} />
+              isOwnerUp(profile.role) && (
+                <VoidPaymentButton paymentId={payment.id} />
+              )
             )}
           </div>
         }
       />
 
       {payment.voided_at && (
-        <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+        <div className="surface-danger p-4 text-sm">
           Voided by {payment.voider?.full_name ?? "—"} on{" "}
-          {new Date(payment.voided_at).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
+          {new Date(payment.voided_at).toLocaleString("en-PH", {
+            timeZone: "Asia/Manila",
+          })}
           {payment.void_reason && <> — “{payment.void_reason}”</>}
         </div>
       )}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+      <section className="surface-card p-5">
+        <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
           <Item label="Receipt no." value={payment.receipt_no ?? "—"} mono />
           <Item label="Amount" value={formatPeso(payment.amount_centavos)} />
           <Item
             label="Loan"
             value={
-              <Link href={`/loans/${payment.loans.id}`} className="text-emerald-700 hover:underline">
+              <Link
+                href={`/loans/${payment.loans.id}`}
+                className="text-brand-700 hover:underline"
+              >
                 {payment.loans.loan_number}
               </Link>
             }
@@ -92,46 +111,50 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
             value={
               <Link
                 href={`/borrowers/${payment.loans.borrowers.id}`}
-                className="text-emerald-700 hover:underline"
+                className="text-brand-700 hover:underline"
               >
                 {payment.loans.borrowers.full_name}
               </Link>
             }
           />
-          <Item label="Date of payment" value={formatLongDate(payment.payment_date)} />
+          <Item
+            label="Date of payment"
+            value={formatLongDate(payment.payment_date)}
+          />
           <Item
             label="Method"
             value={`${payment.method}${payment.reference_no ? ` · ${payment.reference_no}` : ""}`}
           />
-          <Item label="Collected by" value={payment.collector?.full_name ?? "—"} />
+          <Item
+            label="Collected by"
+            value={payment.collector?.full_name ?? "—"}
+          />
           <Item label="Encoded by" value={payment.profiles?.full_name ?? "—"} />
           {payment.note && <Item label="Note" value={payment.note} />}
           <Item
             label="Encoded at"
-            value={new Date(payment.paid_at).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
+            value={new Date(payment.paid_at).toLocaleString("en-PH", {
+              timeZone: "Asia/Manila",
+            })}
           />
         </dl>
 
         {payment.signature_data && (
-          <div className="mt-4 border-t border-slate-200 pt-4">
-            <p className="mb-1 text-sm font-medium uppercase tracking-wide text-slate-700">
-              Payor&apos;s signature
-            </p>
+          <div className="mt-5 border-t border-line pt-5">
+            <p className="field-label">Payor&apos;s signature</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={payment.signature_data}
               alt="Payor's signature"
-              className="h-28 rounded-md border border-slate-200 bg-white"
+              className="h-28 rounded-field border border-line bg-surface"
             />
           </div>
         )}
 
         {(allocations ?? []).length > 0 && (
-          <div className="mt-4 border-t border-slate-200 pt-4">
-            <p className="mb-2 text-sm font-medium uppercase tracking-wide text-slate-700">
-              Applied to
-            </p>
-            <ul className="space-y-1 text-base text-slate-700">
+          <div className="mt-5 border-t border-line pt-5">
+            <p className="field-label">Applied to</p>
+            <ul className="space-y-1 text-base text-ink-700">
               {(
                 (allocations ?? []) as unknown as {
                   amount_centavos: number;
@@ -145,7 +168,9 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
                       ? `Installment #${a.schedule_items.seq} (due ${formatLongDate(a.schedule_items.due_date)})`
                       : `Penalty assessed ${a.penalties ? formatLongDate(a.penalties.assessed_on) : ""}`}
                   </span>
-                  <span className="tabular-nums">{formatPeso(a.amount_centavos)}</span>
+                  <span className="tabular-nums text-ink-900">
+                    {formatPeso(a.amount_centavos)}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -167,34 +192,44 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
         />
       )}
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="text-base font-semibold text-slate-900">History</h2>
+      <section className="surface-card overflow-hidden">
+        <div className="border-b border-line px-4 py-3">
+          <h2 className="text-base font-semibold text-ink-900">History</h2>
         </div>
-        <ul className="divide-y divide-slate-200">
+        <ul className="divide-y divide-line">
           {(history ?? []).map((h) => (
             <li key={h.id} className="px-4 py-3">
-              <p className="text-base text-slate-900">
-                <span className="font-medium">{actorName.get(h.actor_id) ?? h.actor_type}</span>{" "}
+              <p className="text-base text-ink-900">
+                <span className="font-medium">
+                  {actorName.get(h.actor_id) ?? h.actor_type}
+                </span>{" "}
                 — {describeAction(h.action)}
-                <span className="ml-2 text-sm text-slate-500">
-                  {new Date(h.created_at).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
+                <span className="ml-2 text-sm text-ink-500">
+                  {new Date(h.created_at).toLocaleString("en-PH", {
+                    timeZone: "Asia/Manila",
+                  })}
                 </span>
               </p>
-              {h.action === "payment.edit" && h.detail?.before && h.detail?.after && (
-                <ul className="mt-1 space-y-0.5 text-sm text-slate-600">
-                  {diffLines(h.detail.before, h.detail.after).map((line, i) => (
-                    <li key={i}>{line}</li>
-                  ))}
-                </ul>
-              )}
+              {h.action === "payment.edit" &&
+                h.detail?.before &&
+                h.detail?.after && (
+                  <ul className="mt-1 space-y-0.5 text-sm text-ink-600">
+                    {diffLines(h.detail.before, h.detail.after).map(
+                      (line, i) => (
+                        <li key={i}>{line}</li>
+                      ),
+                    )}
+                  </ul>
+                )}
               {h.action === "payment.void" && h.detail?.reason && (
-                <p className="mt-1 text-sm text-slate-600">Reason: {h.detail.reason}</p>
+                <p className="mt-1 text-sm text-ink-600">
+                  Reason: {h.detail.reason}
+                </p>
               )}
             </li>
           ))}
           {(history ?? []).length === 0 && (
-            <li className="px-4 py-6 text-center text-base text-slate-600">
+            <li className="px-4 py-10 text-center text-base text-ink-500">
               No recorded history for this payment.
             </li>
           )}
@@ -215,8 +250,10 @@ function Item({
 }) {
   return (
     <div>
-      <dt className="text-sm font-medium uppercase tracking-wide text-slate-700">{label}</dt>
-      <dd className={`mt-0.5 text-base text-slate-900 ${mono ? "font-mono font-semibold" : ""}`}>
+      <dt className="field-label">{label}</dt>
+      <dd
+        className={`text-base text-ink-900 ${mono ? "font-mono font-semibold" : ""}`}
+      >
         {value}
       </dd>
     </div>
@@ -238,7 +275,7 @@ function describeAction(action: string): string {
 
 function diffLines(
   before: Record<string, unknown>,
-  after: Record<string, unknown>
+  after: Record<string, unknown>,
 ): string[] {
   const labels: Record<string, string> = {
     payment_date: "Date",
@@ -251,7 +288,8 @@ function diffLines(
   for (const key of Object.keys(after)) {
     const b = before[key] ?? "—";
     const a = after[key] ?? "—";
-    if (String(b) !== String(a)) lines.push(`${labels[key] ?? key}: ${b || "—"} → ${a || "—"}`);
+    if (String(b) !== String(a))
+      lines.push(`${labels[key] ?? key}: ${b || "—"} → ${a || "—"}`);
   }
   return lines.length ? lines : ["(no visible changes)"];
 }

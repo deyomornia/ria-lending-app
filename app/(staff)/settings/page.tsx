@@ -7,8 +7,8 @@ import { listStaffAccounts } from "@/lib/actions/staff";
 
 export const metadata = { title: "Settings — RIA Lending" };
 
-const inputCls = "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm";
-const labelCls = "mb-1 block text-sm font-medium uppercase tracking-wide text-slate-700";
+const inputCls = "field-input";
+const labelCls = "field-label";
 
 export default async function SettingsPage() {
   const { supabase, profile } = await requireStaff();
@@ -29,9 +29,9 @@ export default async function SettingsPage() {
       {isOwner && <StaffAccountsManager accounts={accounts} />}
       <form
         action={updateCompanySettings}
-        className="space-y-4 rounded-xl border border-slate-200 bg-white shadow-sm p-6"
+        className="surface-card space-y-4 p-6"
       >
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-ink-700">
           Company details shown on the loan agreement PDF.
           {!isOwner && " Only the owner can edit these."}
         </p>
@@ -65,7 +65,12 @@ export default async function SettingsPage() {
           </div>
           <div>
             <label className={labelCls}>TIN</label>
-            <input name="tin" className={inputCls} defaultValue={settings?.tin ?? ""} disabled={!isOwner} />
+            <input
+              name="tin"
+              className={inputCls}
+              defaultValue={settings?.tin ?? ""}
+              disabled={!isOwner}
+            />
           </div>
         </div>
         <div>
@@ -77,13 +82,8 @@ export default async function SettingsPage() {
             disabled={!isOwner}
           />
         </div>
-        {isOwner && (
-          <button className="rounded-md bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-800">
-            Save settings
-          </button>
-        )}
+        {isOwner && <button className="btn btn-primary">Save settings</button>}
       </form>
-
     </div>
   );
 }

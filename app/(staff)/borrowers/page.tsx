@@ -15,7 +15,9 @@ export default async function BorrowersPage({
 
   let query = supabase
     .from("borrowers")
-    .select("id, full_name, phone, address, loans(id, status, total_payable_centavos)")
+    .select(
+      "id, full_name, phone, address, loans(id, status, total_payable_centavos)",
+    )
     .order("full_name")
     .limit(200);
   if (q) query = query.or(`full_name.ilike.%${q}%,phone.ilike.%${q}%`);
@@ -27,46 +29,49 @@ export default async function BorrowersPage({
         title="Borrowers"
         description="Everyone you lend to, with their active loans and portal access."
         action={
-          <Link
-            href="/borrowers/new"
-            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
-          >
+          <Link href="/borrowers/new" className="btn btn-primary">
             + Add borrower
           </Link>
         }
       />
 
-      <form className="mb-4">
+      <form className="filter-bar mb-4">
         <input
           type="search"
           name="q"
           defaultValue={q ?? ""}
+          aria-label="Search borrowers"
           placeholder="Search by name or phone…"
-          className="w-full max-w-sm rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm"
+          className="field-input w-full max-w-sm"
         />
       </form>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-base">
-          <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Active loans</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Active loans</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody>
             {(borrowers ?? []).map((b) => {
-              const active = (b.loans ?? []).filter((l) => l.status === "active");
+              const active = (b.loans ?? []).filter(
+                (l) => l.status === "active",
+              );
               return (
-                <tr key={b.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-2">
-                    <Link href={`/borrowers/${b.id}`} className="font-medium text-emerald-700">
+                <tr key={b.id}>
+                  <td>
+                    <Link
+                      href={`/borrowers/${b.id}`}
+                      className="font-medium text-brand-700 hover:text-brand-800 hover:underline"
+                    >
                       {b.full_name}
                     </Link>
                   </td>
-                  <td className="px-4 py-2 text-slate-700">{b.phone}</td>
-                  <td className="px-4 py-2 text-slate-700">
+                  <td className="text-ink-700">{b.phone}</td>
+                  <td className="text-ink-700">
                     {active.length > 0
                       ? `${active.length} · ${formatPeso(active.reduce((a, l) => a + l.total_payable_centavos, 0))} payable`
                       : "—"}
@@ -76,7 +81,7 @@ export default async function BorrowersPage({
             })}
             {(borrowers ?? []).length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-slate-600">
+                <td colSpan={3} className="py-12 text-center text-ink-500">
                   No borrowers yet. Add your first borrower to get started.
                 </td>
               </tr>

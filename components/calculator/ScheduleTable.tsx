@@ -4,25 +4,33 @@ import { formatLongDate } from "@/lib/tz";
 
 export function ScheduleTable({ rows }: { rows: ScheduleRow[] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-300">
-      <table className="w-full text-base">
-        <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+    <div className="surface-card overflow-x-auto">
+      <table className="data-table">
+        <thead>
           <tr>
-            <th className="px-3 py-2">#</th>
-            <th className="px-3 py-2">Due date</th>
-            <th className="px-3 py-2 text-right">Principal</th>
-            <th className="px-3 py-2 text-right">Interest</th>
-            <th className="px-3 py-2 text-right">Amount due</th>
+            <th className="w-12">#</th>
+            <th>Due date</th>
+            <th className="text-right">Principal</th>
+            <th className="text-right">Interest</th>
+            <th className="text-right">Amount due</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200">
+        <tbody>
           {rows.map((row) => (
-            <tr key={row.seq} className="bg-white">
-              <td className="px-3 py-2 text-slate-700">{row.seq}</td>
-              <td className="px-3 py-2 whitespace-nowrap">{formatLongDate(row.dueDate)}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatPeso(row.principalDue)}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatPeso(row.interestDue)}</td>
-              <td className="px-3 py-2 text-right font-medium tabular-nums">{formatPeso(row.totalDue)}</td>
+            <tr key={row.seq}>
+              <td className="text-ink-500 tabular-nums">{row.seq}</td>
+              <td className="whitespace-nowrap">
+                {formatLongDate(row.dueDate)}
+              </td>
+              <td className="text-right tabular-nums">
+                {formatPeso(row.principalDue)}
+              </td>
+              <td className="text-right tabular-nums">
+                {formatPeso(row.interestDue)}
+              </td>
+              <td className="text-right font-semibold tabular-nums text-ink-900">
+                {formatPeso(row.totalDue)}
+              </td>
             </tr>
           ))}
         </tbody>

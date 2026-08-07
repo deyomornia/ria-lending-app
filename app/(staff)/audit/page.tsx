@@ -52,7 +52,9 @@ export default async function AuditPage({
   if (q.trim()) query = query.ilike("action", `%${q.trim()}%`);
   const { data: entries } = await query;
 
-  const actorIds = [...new Set((entries ?? []).map((e) => e.actor_id).filter(Boolean))];
+  const actorIds = [
+    ...new Set((entries ?? []).map((e) => e.actor_id).filter(Boolean)),
+  ];
   const { data: actors } = actorIds.length
     ? await admin.from("profiles").select("id, full_name").in("id", actorIds)
     : { data: [] };
@@ -64,28 +66,29 @@ export default async function AuditPage({
         title="Audit log"
         description="Every action in the system — who did what, and when. Latest 200 entries."
         action={
-          <form className="flex gap-2">
+          <form className="filter-bar">
             <input
               type="search"
               name="q"
               defaultValue={q}
+              aria-label="Filter audit log by action"
               placeholder="Filter by action, e.g. payment"
-              className="w-64 rounded-md border border-slate-300 px-3 py-2 text-base shadow-sm"
+              className="field-input w-full sm:w-64"
             />
-            <button className="rounded-md bg-slate-900 px-3 py-2 text-base font-medium text-white">
-              Filter
-            </button>
+            <button className="btn btn-primary">Filter</button>
           </form>
         }
       />
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <ul className="divide-y divide-slate-200">
+      <div className="surface-card overflow-hidden">
+        <ul className="divide-y divide-line">
           {(entries ?? []).map((e) => {
-            const link = e.entity_id ? ENTITY_LINK[e.entity]?.(e.entity_id) : undefined;
+            const link = e.entity_id
+              ? ENTITY_LINK[e.entity]?.(e.entity_id)
+              : undefined;
             return (
               <li key={e.id} className="px-4 py-3">
-                <p className="text-base text-slate-900">
+                <p className="text-base text-ink-900">
                   <span className="font-medium">
                     {e.actor_id
                       ? (actorName.get(e.actor_id) ?? "Unknown")
@@ -95,25 +98,36 @@ export default async function AuditPage({
                   </span>{" "}
                   {ACTION_LABELS[e.action] ?? e.action}
                   {link && (
-                    <Link href={link} className="ml-2 text-sm text-emerald-700 hover:underline">
+                    <Link
+                      href={link}
+                      className="ml-2 text-sm text-brand-700 hover:underline"
+                    >
                       view →
                     </Link>
                   )}
                 </p>
-                <p className="mt-0.5 text-sm text-slate-600">
-                  {new Date(e.created_at).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
-                  <span className="ml-2 font-mono text-slate-500">{e.action}</span>
+                <p className="mt-0.5 text-sm text-ink-600">
+                  {new Date(e.created_at).toLocaleString("en-PH", {
+                    timeZone: "Asia/Manila",
+                  })}
+                  <span className="ml-2 font-mono text-ink-500">
+                    {e.action}
+                  </span>
                 </p>
-                {e.detail && Object.keys(e.detail).length > 0 && e.action !== "payment.edit" && (
-                  <p className="mt-0.5 break-all font-mono text-sm text-slate-500">
-                    {JSON.stringify(e.detail).slice(0, 180)}
-                  </p>
-                )}
+                {e.detail &&
+                  Object.keys(e.detail).length > 0 &&
+                  e.action !== "payment.edit" && (
+                    <p className="mt-0.5 break-all font-mono text-sm text-ink-500">
+                      {JSON.stringify(e.detail).slice(0, 180)}
+                    </p>
+                  )}
               </li>
             );
           })}
           {(entries ?? []).length === 0 && (
-            <li className="px-4 py-8 text-center text-base text-slate-600">No entries found.</li>
+            <li className="px-4 py-10 text-center text-base text-ink-500">
+              No entries found.
+            </li>
           )}
         </ul>
       </div>
