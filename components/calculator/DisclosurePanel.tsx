@@ -25,21 +25,18 @@ export function DisclosurePanel({
   return (
     <section
       aria-labelledby="disclosure-heading"
-      className="animate-rise-in overflow-hidden rounded-xl border border-slate-300 bg-white"
+      className="animate-rise-in card card-border border-base-300 bg-base-100 overflow-hidden"
     >
-      <div className="border-b border-slate-300 bg-slate-50 px-5 py-3">
-        <h3
-          id="disclosure-heading"
-          className="text-base font-semibold text-slate-900"
-        >
+      <div className="border-b border-base-300 bg-base-200 px-5 py-3">
+        <h3 id="disclosure-heading" className="card-title text-base">
           Disclosure Statement
         </h3>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-base-content/70">
           Required by the Truth in Lending Act (RA 3765)
         </p>
       </div>
 
-      <dl className="divide-y divide-slate-200">
+      <dl className="divide-y divide-base-300">
         <Row
           term="Amount financed"
           detail="Cash actually received, after any processing fee"
@@ -82,19 +79,29 @@ export function DisclosurePanel({
       )}
 
       {understated && (
-        <p className="border-t border-slate-300 bg-amber-50 px-5 py-3 text-sm text-amber-900">
-          <span className="font-semibold">
-            Why is this higher than the quoted rate?
-          </span>{" "}
-          The quoted {formatRatePct(quotedMonthlyRatePct)} per month is charged
-          on the <em>original</em> amount for the whole term, but the balance
-          shrinks with every payment. The effective rate prices what is actually
-          still owed.
-        </p>
+        <div
+          role="note"
+          className="alert alert-warning alert-soft rounded-none border-x-0 border-b-0 text-sm"
+        >
+          {/*
+            daisyUI's alert lays its children out as grid columns, so a prose
+            paragraph must be a single child — otherwise each text node, span,
+            and em becomes its own column and the sentence reads vertically.
+          */}
+          <p>
+            <span className="font-semibold">
+              Why is this higher than the quoted rate?
+            </span>{" "}
+            The quoted {formatRatePct(quotedMonthlyRatePct)} per month is
+            charged on the <em>original</em> amount for the whole term, but the
+            balance shrinks with every payment. The effective rate prices what
+            is actually still owed.
+          </p>
+        </div>
       )}
 
       {disclosure.indeterminate && (
-        <p className="border-t border-slate-300 bg-slate-50 px-5 py-3 text-sm text-slate-700">
+        <p className="border-t border-base-300 bg-base-200 px-5 py-3 text-sm text-base-content/70">
           The effective rate could not be computed for these terms.
         </p>
       )}
@@ -116,20 +123,12 @@ function Row({
   return (
     <div className="flex items-baseline justify-between gap-4 px-5 py-3">
       <dt>
-        <span
-          className={
-            emphasis ? "font-semibold text-slate-900" : "text-slate-900"
-          }
-        >
-          {term}
-        </span>
-        <span className="block text-sm text-slate-600">{detail}</span>
+        <span className={emphasis ? "font-semibold" : ""}>{term}</span>
+        <span className="block text-sm text-base-content/70">{detail}</span>
       </dt>
       <dd
         className={`shrink-0 tabular-nums ${
-          emphasis
-            ? "text-xl font-bold text-slate-900"
-            : "text-lg font-semibold text-slate-900"
+          emphasis ? "text-xl font-bold" : "text-lg font-semibold"
         }`}
       >
         {value}

@@ -99,10 +99,15 @@ export function stateToTerms(s: CalculatorState): LoanTerms | null {
   return { ...base, method: "per_period_flat", ratePerPeriodBps: bps };
 }
 
-const inputCls =
-  "w-full rounded-md border border-slate-300 px-3 py-2.5 text-base shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600";
+// The previous hand-rolled classes included `focus:outline-none`, which beat the
+// global `:focus-visible` rule and removed the 3px focus ring these fields are
+// supposed to have. daisyUI does not fix that on its own — it substitutes its
+// own 2px ring — so globals.css re-asserts the thicker ring at matching
+// specificity. See the focus block there.
+const inputCls = "input w-full text-base";
+const selectCls = "select w-full text-base";
 const labelCls =
-  "block text-sm font-medium uppercase tracking-wide text-slate-700 mb-1";
+  "block text-sm font-medium uppercase tracking-wide text-base-content/70 mb-1";
 
 export function CalculatorForm({
   initial,
@@ -162,7 +167,7 @@ export function CalculatorForm({
         <div className="sm:col-span-2">
           <label className={labelCls}>Interest method</label>
           <select
-            className={inputCls}
+            className={selectCls}
             value={s.method}
             onChange={(e) => set({ method: e.target.value as InterestMethod })}
           >
@@ -172,7 +177,9 @@ export function CalculatorForm({
               </option>
             ))}
           </select>
-          <p className="mt-1 text-sm text-slate-700">{METHOD_HELP[s.method]}</p>
+          <p className="mt-1 text-sm text-base-content/70">
+            {METHOD_HELP[s.method]}
+          </p>
         </div>
 
         <div>
@@ -216,7 +223,7 @@ export function CalculatorForm({
         <div>
           <label className={labelCls}>Payment frequency</label>
           <select
-            className={inputCls}
+            className={selectCls}
             value={s.frequency}
             onChange={(e) =>
               set({ frequency: e.target.value as PaymentFrequency })
@@ -255,7 +262,7 @@ export function CalculatorForm({
         <div>
           <label className={labelCls}>
             First due date{" "}
-            <span className="normal-case text-slate-600">(optional)</span>
+            <span className="normal-case text-base-content/70">(optional)</span>
           </label>
           <input
             type="date"
@@ -268,7 +275,7 @@ export function CalculatorForm({
         <div>
           <label className={labelCls}>
             Processing fee (₱){" "}
-            <span className="normal-case text-slate-600">
+            <span className="normal-case text-base-content/70">
               (deducted from release)
             </span>
           </label>
@@ -284,7 +291,7 @@ export function CalculatorForm({
       </div>
 
       {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="alert alert-error alert-soft text-sm">
           {error}
         </p>
       )}
@@ -333,12 +340,12 @@ function SummaryCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-300 bg-white p-3">
-      <p className="text-sm uppercase tracking-wide text-slate-700">{label}</p>
-      <p className="mt-1 text-lg font-semibold tabular-nums text-slate-900">
+    <div className="stat bg-base-100 border-base-300 rounded-box border p-3">
+      <p className="stat-title text-sm uppercase tracking-wide">{label}</p>
+      <p className="stat-value mt-1 text-lg font-semibold tabular-nums">
         {value}
       </p>
-      {hint && <p className="text-sm text-slate-600">{hint}</p>}
+      {hint && <p className="stat-desc text-sm">{hint}</p>}
     </div>
   );
 }

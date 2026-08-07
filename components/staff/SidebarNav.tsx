@@ -51,7 +51,7 @@ export function SidebarNav({
   const pathname = usePathname();
 
   return (
-    <nav className={compact ? "flex gap-1" : "flex-1 space-y-1 px-3"}>
+    <ul className={compact ? "menu menu-horizontal flex-nowrap gap-1 p-0" : "menu w-full flex-1 gap-1 px-3"}>
       {NAV.filter((item) => showSettings || (item.href !== "/settings" && item.href !== "/audit")).map((item) => {
         const active =
           pathname === item.href ||
@@ -62,29 +62,30 @@ export function SidebarNav({
           (item.href === "/audit" && pathname.startsWith("/audit/")) ||
           (item.href === "/settings" && pathname.startsWith("/settings/"));
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={
-              compact
-                ? `rounded-md px-2 py-1.5 text-sm ${active ? "bg-emerald-800 text-white" : "text-emerald-100"}`
-                : `flex items-center gap-3 rounded-lg px-3 py-2.5 text-base transition-colors ${
-                    active
-                      ? "bg-emerald-800/80 font-semibold text-white"
-                      : "text-emerald-100/90 hover:bg-emerald-900 hover:text-white"
-                  }`
-            }
-          >
-            {!compact && (
-              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 fill-current opacity-80" aria-hidden>
-                {ICONS[item.icon]}
-              </svg>
-            )}
-            {item.label}
-          </Link>
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={
+                compact
+                  ? `text-sm whitespace-nowrap ${active ? "menu-active font-semibold" : ""}`
+                  : `text-base ${active ? "menu-active font-semibold" : ""}`
+              }
+            >
+              {!compact && (
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 shrink-0 fill-current opacity-80"
+                  aria-hidden
+                >
+                  {ICONS[item.icon]}
+                </svg>
+              )}
+              {item.label}
+            </Link>
+          </li>
         );
       })}
-    </nav>
+    </ul>
   );
 }

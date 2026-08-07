@@ -35,61 +35,57 @@ const ENTRANCES = [
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-      <div className="w-full max-w-lg">
-        <header className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-800 text-3xl font-bold text-white">
+    <main className="hero min-h-screen bg-base-200 px-4 py-10">
+      <div className="hero-content w-full max-w-lg flex-col items-stretch">
+        <header className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-3xl font-bold text-secondary-content">
             ₱
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-            RIA Lending
-          </h1>
-          <p className="mt-2 text-base text-slate-700">
+          <h1 className="text-4xl font-bold tracking-tight">RIA Lending</h1>
+          <p className="mt-2 text-base text-base-content/70">
             Loan management for lenders, collectors, and borrowers.
           </p>
         </header>
 
-        <nav className="space-y-3">
+        <nav className="mt-8 space-y-3">
           {ENTRANCES.map((entrance) => (
             <Link
               key={entrance.href}
               href={entrance.href}
-              className={`flex items-center gap-4 rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md ${
+              className={`card card-border transition-shadow hover:shadow-md ${
                 entrance.primary
-                  ? "border-emerald-800 bg-emerald-800 text-white"
-                  : "border-slate-200 bg-white"
+                  ? "border-primary bg-primary text-primary-content"
+                  : "border-base-300 bg-base-100"
               }`}
             >
-              <svg
-                viewBox="0 0 24 24"
-                className={`h-7 w-7 shrink-0 fill-current ${
-                  entrance.primary ? "text-emerald-100" : "text-emerald-700"
-                }`}
-                aria-hidden
-              >
-                {entrance.icon}
-              </svg>
-              <span className="min-w-0">
-                <span
-                  className={`block text-lg font-semibold ${
-                    entrance.primary ? "text-white" : "text-slate-900"
+              <div className="card-body flex-row items-center gap-4">
+                <svg
+                  viewBox="0 0 24 24"
+                  className={`h-7 w-7 shrink-0 fill-current ${
+                    entrance.primary ? "opacity-80" : "text-primary"
                   }`}
+                  aria-hidden
                 >
-                  {entrance.title}
+                  {entrance.icon}
+                </svg>
+                <span className="min-w-0">
+                  <span className="card-title block text-lg">
+                    {entrance.title}
+                  </span>
+                  <span
+                    className={`block text-sm ${
+                      entrance.primary ? "opacity-80" : "text-base-content/70"
+                    }`}
+                  >
+                    {entrance.description}
+                  </span>
                 </span>
-                <span
-                  className={`block text-sm ${
-                    entrance.primary ? "text-emerald-100" : "text-slate-600"
-                  }`}
-                >
-                  {entrance.description}
-                </span>
-              </span>
+              </div>
             </Link>
           ))}
         </nav>
 
-        <p className="mt-8 text-center text-sm text-slate-600">
+        <p className="mt-8 text-center text-sm text-base-content/70">
           Every quote shows its effective interest rate, as required by the
           Truth in Lending Act (RA 3765).
         </p>

@@ -174,7 +174,7 @@ export default async function DashboardPage() {
           action={
             <Link
               href="/loans/new"
-              className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
+              className="btn btn-primary"
             >
               + New loan
             </Link>
@@ -207,13 +207,13 @@ export default async function DashboardPage() {
         </div>
 
         {(myPending ?? []).length > 0 && (
-          <section className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-4 py-3">
-              <h2 className="text-base font-semibold text-slate-900">
+          <section className="card card-border border-base-300 bg-base-100 mt-6 overflow-hidden">
+            <div className="border-base-300 border-b px-4 py-3">
+              <h2 className="card-title text-base">
                 My loan proposals
               </h2>
             </div>
-            <ul className="divide-y divide-slate-200">
+            <ul className="divide-base-300 divide-y">
               {(myPending ?? []).map((l) => (
                 <li
                   key={l.id}
@@ -222,11 +222,11 @@ export default async function DashboardPage() {
                   <span>
                     <Link
                       href={`/loans/${l.id}`}
-                      className="font-medium text-emerald-700 hover:underline"
+                      className="link link-primary font-medium"
                     >
                       {l.loan_number}
                     </Link>
-                    <span className="ml-2 text-slate-700">
+                    <span className="ml-2">
                       {
                         (l.borrowers as unknown as { full_name: string })
                           ?.full_name
@@ -234,10 +234,10 @@ export default async function DashboardPage() {
                     </span>
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-sm font-medium ${
+                    className={`badge badge-soft badge-sm ${
                       l.status === "pending_approval"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-sky-100 text-sky-800"
+                        ? "badge-warning"
+                        : "badge-info"
                     }`}
                   >
                     {l.status === "pending_approval"
@@ -397,7 +397,7 @@ export default async function DashboardPage() {
         action={
           <Link
             href="/loans/new"
-            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-800"
+            className="btn btn-primary"
           >
             + New loan
           </Link>
@@ -405,28 +405,28 @@ export default async function DashboardPage() {
       />
 
       {queue.length > 0 && (
-        <section className="mb-6 overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm">
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3">
-            <h2 className="text-base font-semibold text-amber-900">
+        <section className="card card-border border-warning/40 bg-base-100 mb-6 overflow-hidden">
+          <div className="border-warning/40 bg-warning/10 border-b px-4 py-3">
+            <h2 className="card-title text-base">
               Loan workflow queue — {queue.length} awaiting action
             </h2>
           </div>
           <table className="w-full text-base">
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-base-300 divide-y">
               {queue.map((l) => (
                 <tr key={l.id}>
                   <td className="px-4 py-2.5">
                     <Link
                       href={`/loans/${l.id}`}
-                      className="font-medium text-emerald-700 hover:underline"
+                      className="link link-primary font-medium"
                     >
                       {l.loan_number}
                     </Link>
-                    <span className="ml-2 text-slate-700">
+                    <span className="ml-2">
                       {l.borrowers.full_name}
                     </span>
                     {l.collector?.full_name && (
-                      <span className="ml-2 hidden text-sm text-slate-600 md:inline">
+                      <span className="ml-2 hidden text-sm opacity-70 md:inline">
                         via {l.collector.full_name}
                       </span>
                     )}
@@ -436,10 +436,10 @@ export default async function DashboardPage() {
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <span
-                      className={`rounded-full px-2 py-0.5 text-sm font-medium ${
+                      className={`badge badge-soft badge-sm ${
                         l.status === "pending_approval"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-sky-100 text-sky-800"
+                          ? "badge-warning"
+                          : "badge-info"
                       }`}
                     >
                       {l.status === "pending_approval"
@@ -481,17 +481,17 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+        <section className="card card-border border-base-300 bg-base-100 p-5 lg:col-span-2">
           <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="card-title text-base">
               Collections — last 7 days
             </h2>
             <Link
               href={`/collections?from=${weekStart}&to=${today}`}
-              className="text-sm text-slate-700 hover:underline"
+              className="link link-hover text-sm"
             >
               Week total:{" "}
-              <span className="font-semibold tabular-nums text-slate-900">
+              <span className="font-semibold tabular-nums">
                 {formatPeso(collectedWeek)}
               </span>{" "}
               →
@@ -500,8 +500,8 @@ export default async function DashboardPage() {
           <CollectionsBarChart days={days} />
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-3 text-base font-semibold text-slate-900">
+        <section className="card card-border border-base-300 bg-base-100 p-5">
+          <h2 className="card-title mb-3 text-base">
             Collection rate
           </h2>
           <ProgressRing
@@ -513,8 +513,8 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
-          <h2 className="mb-1 text-base font-semibold text-slate-900">
+        <section className="card card-border border-base-300 bg-base-100 p-5 lg:col-span-2">
+          <h2 className="card-title mb-1 text-base">
             Money flow — last 6 months
           </h2>
           <MoneyFlowTrend
@@ -526,38 +526,38 @@ export default async function DashboardPage() {
           />
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-3 text-base font-semibold text-slate-900">
+        <section className="card card-border border-base-300 bg-base-100 p-5">
+          <h2 className="card-title mb-3 text-base">
             Portfolio at risk
           </h2>
           <p
-            className={`text-3xl font-bold tabular-nums ${parPct > 10 ? "text-red-600" : "text-slate-900"}`}
+            className={`text-3xl font-bold tabular-nums ${parPct > 10 ? "text-error" : ""}`}
           >
             {parPct.toFixed(1)}%
           </p>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm opacity-70">
             {formatPeso(parAmt)} of the outstanding book sits on loans with
             missed payments.
           </p>
-          <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="bg-base-200 mt-3 h-2.5 w-full overflow-hidden rounded-full">
             <div className="flex h-full">
               <div
                 style={{ width: `${Math.min(100, par30Pct)}%` }}
-                className="animate-grow-x bg-red-600"
+                className="animate-grow-x bg-error"
               />
               <div
                 style={{
                   width: `${Math.min(100, Math.max(0, parPct - par30Pct))}%`,
                   animationDelay: "80ms",
                 }}
-                className="animate-grow-x bg-amber-500"
+                className="animate-grow-x bg-warning"
               />
             </div>
           </div>
-          <div className="mt-2 space-y-1 text-sm text-slate-700">
+          <div className="mt-2 space-y-1 text-sm opacity-80">
             <p>
               <span
-                className="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm bg-amber-500"
+                className="bg-warning mr-1.5 inline-block h-2.5 w-2.5 rounded-sm"
                 aria-hidden
               />
               1–30 days late:{" "}
@@ -567,7 +567,7 @@ export default async function DashboardPage() {
             </p>
             <p>
               <span
-                className="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm bg-red-600"
+                className="bg-error mr-1.5 inline-block h-2.5 w-2.5 rounded-sm"
                 aria-hidden
               />
               Over 30 days:{" "}
@@ -580,13 +580,13 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-4 py-3">
-            <h2 className="text-base font-semibold text-slate-900">
+        <section className="card card-border border-base-300 bg-base-100 overflow-hidden">
+          <div className="border-base-300 border-b px-4 py-3">
+            <h2 className="card-title text-base">
               Top overdue borrowers
             </h2>
           </div>
-          <ul className="divide-y divide-slate-200">
+          <ul className="divide-base-300 divide-y">
             {topOverdue.map((b) => (
               <li
                 key={b.id}
@@ -595,50 +595,50 @@ export default async function DashboardPage() {
                 <span>
                   <Link
                     href={`/borrowers/${b.id}`}
-                    className="font-medium text-emerald-700 hover:underline"
+                    className="link link-primary font-medium"
                   >
                     {b.name}
                   </Link>
-                  <span className="ml-2 text-sm text-red-600">
+                  <span className="text-error ml-2 text-sm">
                     {b.daysLate} day{b.daysLate === 1 ? "" : "s"} late
                   </span>
                 </span>
-                <span className="font-semibold tabular-nums text-slate-900">
+                <span className="font-semibold tabular-nums">
                   {formatPeso(b.amount)}
                 </span>
               </li>
             ))}
             {topOverdue.length === 0 && (
-              <li className="px-4 py-6 text-center text-base text-slate-600">
+              <li className="px-4 py-6 text-center text-base opacity-70">
                 No overdue borrowers. Excellent.
               </li>
             )}
           </ul>
         </section>
 
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-4 py-3">
-            <h2 className="text-base font-semibold text-slate-900">
+        <section className="card card-border border-base-300 bg-base-100 overflow-hidden">
+          <div className="border-base-300 border-b px-4 py-3">
+            <h2 className="card-title text-base">
               Collector leaderboard — last 7 days
             </h2>
           </div>
-          <ul className="divide-y divide-slate-200">
+          <ul className="divide-base-300 divide-y">
             {leaderboard.map((c, i) => (
               <li key={c.id} className="px-4 py-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-900">
-                    <span className="mr-2 text-sm text-slate-500">
+                  <span className="font-medium">
+                    <span className="mr-2 text-sm opacity-60">
                       #{i + 1}
                     </span>
                     {c.name}
                   </span>
-                  <span className="font-semibold tabular-nums text-slate-900">
+                  <span className="font-semibold tabular-nums">
                     {formatPeso(c.amount)}
                   </span>
                 </div>
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div className="bg-base-200 mt-1.5 h-1.5 w-full overflow-hidden rounded-full">
                   <div
-                    className="animate-grow-x h-full rounded-full bg-emerald-600"
+                    className="animate-grow-x bg-success h-full rounded-full"
                     style={{
                       width: `${(c.amount / leaderMax) * 100}%`,
                       animationDelay: `${i * 80}ms`,
@@ -648,7 +648,7 @@ export default async function DashboardPage() {
               </li>
             ))}
             {leaderboard.length === 0 && (
-              <li className="px-4 py-6 text-center text-base text-slate-600">
+              <li className="px-4 py-6 text-center text-base opacity-70">
                 No collections in the last 7 days.
               </li>
             )}
@@ -692,33 +692,33 @@ function Stat({
 }) {
   const inner = (
     <div
-      className={`rounded-xl border p-4 shadow-sm transition-shadow ${
+      className={`stat rounded-box border p-4 transition-shadow ${
         accent
-          ? "border-emerald-700 bg-emerald-700 text-white"
-          : "border-slate-200 bg-white"
+          ? "border-primary bg-primary text-primary-content"
+          : "border-base-300 bg-base-100"
       } ${href ? "hover:shadow-md" : ""}`}
     >
       <p
-        className={`text-sm font-medium uppercase tracking-wide ${accent ? "text-emerald-100" : "text-slate-700"}`}
+        className={`stat-title text-sm font-medium uppercase tracking-wide ${accent ? "opacity-80" : ""}`}
       >
         {label}
       </p>
       <p
-        className={`mt-1 text-2xl font-bold tabular-nums ${
+        className={`stat-value mt-1 text-2xl font-bold tabular-nums ${
           accent
-            ? "text-white"
+            ? ""
             : bad
-              ? "text-red-600"
+              ? "text-error"
               : good
-                ? "text-emerald-700"
-                : "text-slate-900"
+                ? "text-success"
+                : ""
         }`}
       >
         {value}
       </p>
       {hint && (
         <p
-          className={`text-sm tabular-nums ${accent ? "text-emerald-100" : "text-slate-600"}`}
+          className={`stat-desc text-sm tabular-nums ${accent ? "opacity-80" : ""}`}
         >
           {hint}
         </p>
@@ -740,29 +740,29 @@ function DueTable({
   overdue?: boolean;
 }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <h2 className="text-base font-semibold text-slate-900">
+    <section className="card card-border border-base-300 bg-base-100 overflow-hidden">
+      <div className="border-base-300 flex items-center justify-between border-b px-4 py-3">
+        <h2 className="card-title text-base">
           {overdue && rows.length > 0 && (
             <span
-              className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-red-600"
+              className="status status-error mr-2"
               aria-hidden
             />
           )}
           {title}
         </h2>
         <span
-          className={`rounded-full px-2.5 py-0.5 text-sm font-semibold ${
+          className={`badge badge-soft ${
             overdue && rows.length > 0
-              ? "bg-red-100 text-red-700"
-              : "bg-slate-100 text-slate-700"
+              ? "badge-error"
+              : "badge-neutral"
           }`}
         >
           {rows.length}
         </span>
       </div>
       <table className="w-full text-base">
-        <thead className="bg-slate-50 text-left text-sm uppercase tracking-wide text-slate-700">
+        <thead className="bg-base-200 text-left text-sm uppercase tracking-wide opacity-80">
           <tr>
             <th className="px-4 py-2 font-semibold">Borrower</th>
             <th className="hidden px-4 py-2 font-semibold sm:table-cell">
@@ -772,24 +772,24 @@ function DueTable({
             <th className="px-4 py-2 text-right font-semibold">Amount due</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200">
+        <tbody className="divide-base-300 divide-y">
           {rows.map((r) => (
-            <tr key={r.id} className={overdue ? "bg-red-50/50" : ""}>
+            <tr key={r.id} className={overdue ? "bg-error/5" : ""}>
               <td className="px-4 py-2.5">
                 <Link
                   href={`/borrowers/${r.loans.borrowers.id}`}
-                  className="font-medium text-emerald-700 hover:underline"
+                  className="link link-primary font-medium"
                 >
                   {r.loans.borrowers.full_name}
                 </Link>
-                <span className="ml-2 hidden text-sm text-slate-600 md:inline">
+                <span className="ml-2 hidden text-sm opacity-70 md:inline">
                   {r.loans.borrowers.phone}
                 </span>
               </td>
               <td className="hidden px-4 py-2.5 sm:table-cell">
                 <Link
                   href={`/loans/${r.loans.id}`}
-                  className="text-emerald-700 hover:underline"
+                  className="link link-primary"
                 >
                   {r.loans.loan_number}
                 </Link>
@@ -806,7 +806,7 @@ function DueTable({
             <tr>
               <td
                 colSpan={4}
-                className="px-4 py-8 text-center text-base text-slate-600"
+                className="px-4 py-8 text-center text-base opacity-70"
               >
                 {emptyText}
               </td>

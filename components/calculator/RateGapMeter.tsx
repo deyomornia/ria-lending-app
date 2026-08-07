@@ -26,22 +26,22 @@ export function RateGapMeter({
   const effectivePct = (effectiveMonthlyRatePct / max) * 100;
 
   return (
-    <div className="border-t border-slate-300 px-5 py-4">
-      <p className="mb-3 text-sm font-medium text-slate-700">
+    <div className="border-t border-base-300 px-5 py-4">
+      <p className="mb-3 text-sm font-medium text-base-content/70">
         Monthly cost — quoted vs. actual
       </p>
       <Bar
         label="Quoted"
         value={formatRatePct(quotedMonthlyRatePct)}
         widthPct={quotedPct}
-        className="bg-slate-400"
+        className="bg-base-content/30"
         delayMs={0}
       />
       <Bar
         label="Actual"
         value={formatRatePct(effectiveMonthlyRatePct)}
         widthPct={effectivePct}
-        className="bg-emerald-700"
+        className="bg-primary"
         delayMs={140}
       />
     </div>
@@ -63,14 +63,14 @@ function Bar({
 }) {
   return (
     <div className="mb-2 flex items-center gap-3 last:mb-0">
-      <span className="w-16 shrink-0 text-sm text-slate-700">{label}</span>
-      <span className="h-3 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
+      <span className="w-16 shrink-0 text-sm text-base-content/70">{label}</span>
+      <span className="h-3 min-w-0 flex-1 overflow-hidden rounded-full bg-base-200">
         <span
           className={`animate-grow-x block h-full rounded-full ${className}`}
           style={{ width: `${widthPct}%`, animationDelay: `${delayMs}ms` }}
         />
       </span>
-      <span className="w-20 shrink-0 text-right text-sm font-semibold tabular-nums text-slate-900">
+      <span className="w-20 shrink-0 text-right text-sm font-semibold tabular-nums">
         {value}
       </span>
     </div>
